@@ -82,22 +82,43 @@ class Model:
 class Train:
 
     def __init__(self,model):
-        self.model = model.compiled_model
+        self.model = model
+        self.compiled_model = model.compiled_model
         self.decay_lr = None
         if model.decay_lr:
             self.decay_lr = self.lr_decay_function()
 
-        self.trained_model = fit_model(self.model)
+        self.trained_model = self.fit_model(self.compiled_model,self.model)
 
     def lr_decay_function(self):
         return [tf.keras.callbacks.LearningRateScheduler(lambda epoch: 0.01 *
                                                         math.pow(0.6,epoch),
                                                         verbose=True)]
-    def fit_model(self,model):
-        model.fit(model.x_train,model.y_train,epochs=model.epochs,
+    def fit_model(self,compiled_model,model):
+        compiled_model.fit(model.x_train,model.y_train,epochs=model.epochs,
                   steps_per_epoch = model.steps_per_epoch,
                   callbacks=self.decay_lr)
-        return model
+        return compiled_model
+
+class Evaluate:
+
+    def __init__(self,compiled_model,trained_model):
+        self.compiled_model = compiled_model
+        self.trained_model = trained_model
+
+        statistics = self.get_statistics(self.compiled_model,
+                                            self.trained_model)
+        self.val_loss = statistics[0]
+        self.val_acc = statistics[1]
+
+    def get_statistics(self,compiled_model,trained_model):
+        val_loss, val_acc = trained_model.evaluate(compiled_model.x_test,
+                                                   compiled_model.y_test)
+        return [val_loss,val_acc]
+
+class Plot:
+
+
 
 if __name__ == "__main__":
     mnist = tf.keras.datasets.mnist
@@ -107,10 +128,12 @@ if __name__ == "__main__":
     #learning_rate,decay_lr,dropout,dropout_size,epochs,
     #batch_size,loss,metrics):
 
-    model = Model(mnist,200,1,60000,0.01,False,False,0,10,100,
+    compiled_model = Model(mnist,200,1,60000,0.01,False,False,0,10,100,
                  'sparse_categorical_crossentropy',['accuracy'])
-    train = Train(model)
-    model = train.trained_model
 
-    val_loss, val_acc = model.evaluate(x_test,y_test)
-    print("loss: ",val_loss,"\n","accuracy: ",val_acc)
+    trained_model = Train(compiled_model)
+    trained_model = trained_model.trained_model
+
+    evaluate = Evaluate(compiled_model,trained_model)
+
+    print("loss: ",evaluate.val_loss,'\n',"acc: ",evaluate.val_acc)
