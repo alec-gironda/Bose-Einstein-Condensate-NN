@@ -8,7 +8,7 @@ import math
 class Model:
     '''
     takes information on dataset and neural network parameters.
-    generates a model.
+    compiles a model.
 
 
     can try different optimizers
@@ -36,12 +36,12 @@ class Model:
 
         processed_data = self.process_dataset_input(self.dataset)
 
-        self.x_train = processed_data[0][:self.training_size+1]
+        self.x_train = tf.keras.utils.normalize(processed_data[0][:self.training_size+1],axis=1)
         self.y_train = processed_data[1][:self.training_size+1]
 
         self.steps_per_epoch = len(self.x_train)//self.batch_size
 
-        self.x_test = processed_data[2]
+        self.x_test = tf.keras.utils.normalize(processed_data[2][:self.training_size+1],axis=1)
         self.y_test = processed_data[3]
 
         self.compiled_model = self.compile_model(self.hidden_units,
@@ -61,9 +61,9 @@ class Model:
 
     def compile_model(self,hidden_units,learning_rate,
                       dropout,dropout_size,loss,metrics):
-        '''
-        add layers, but start with one for now
-        '''
+
+        #add layers, but start with one for now
+
 
         model = tf.keras.models.Sequential()
         model.add(tf.keras.layers.Flatten())
@@ -80,6 +80,11 @@ class Model:
         return model
 
 class Train:
+    '''
+
+    Trains the model on the data.
+
+    '''
 
     def __init__(self,model):
         self.model = model
@@ -98,9 +103,15 @@ class Train:
         compiled_model.fit(model.x_train,model.y_train,epochs=model.epochs,
                   steps_per_epoch = model.steps_per_epoch,
                   callbacks=self.decay_lr)
+
         return compiled_model
 
 class Evaluate:
+
+    '''
+    gets loss and accuracy of the model based on the validation(test) set
+
+    '''
 
     def __init__(self,compiled_model,trained_model):
         self.compiled_model = compiled_model
@@ -118,7 +129,23 @@ class Evaluate:
 
 class Plot:
 
+    '''
+    generates a scatterplot of two arrays
 
+    '''
+
+    def __init__(self,x_list,y_list,x_label,y_label):
+        self.x_list = x_list
+        self.y_list = y_list
+
+        self.x_label = x_label
+        self.y_label = y_label
+
+    def scatter_plot(self):
+        plt.scatter(self.x_list,self.y_list)
+        plt.xlabel(self.x_label)
+        plt.ylabel(self.y_label)
+        plt.show()
 
 if __name__ == "__main__":
     mnist = tf.keras.datasets.mnist
@@ -128,12 +155,20 @@ if __name__ == "__main__":
     #learning_rate,decay_lr,dropout,dropout_size,epochs,
     #batch_size,loss,metrics):
 
-    compiled_model = Model(mnist,200,1,60000,0.01,False,False,0,10,100,
-                 'sparse_categorical_crossentropy',['accuracy'])
+    hidden_units_list = [200]
+    #hidden_units_list = [16*i for i in range(784//16) if i!=0]
+    val_acc_list = []
+    for hidden_units in hidden_units_list:
 
-    trained_model = Train(compiled_model)
-    trained_model = trained_model.trained_model
+        compiled_model = Model(mnist,hidden_units,1,60000,0.01,False,True,0.25,10,100,
+                     'sparse_categorical_crossentropy',['accuracy'])
 
-    evaluate = Evaluate(compiled_model,trained_model)
+        trained_model = Train(compiled_model)
+        trained_model = trained_model.trained_model
 
-    print("loss: ",evaluate.val_loss,'\n',"acc: ",evaluate.val_acc)
+        evaluate = Evaluate(compiled_model,trained_model)
+
+        val_acc_list.append(evaluate.val_acc)
+
+    hidden_units_plot = Plot(hidden_units_list,val_acc_list,"hidden units","accuracy")
+    hidden_units_plot.scatter_plot()
