@@ -1,7 +1,9 @@
 import tensorflow as tf
+import os
 import matplotlib.pyplot as plt
 import numpy as np
 import math
+import time
 
 #imported data must be in (x_train,y_train),(x_test,y_test) = data format
 
@@ -148,6 +150,13 @@ class Plot:
         plt.show()
 
 if __name__ == "__main__":
+
+    #check CPU performance vs GPU
+
+    os.environ["CUDA_VISIBLE_DEVICES"]="-1"
+
+    start_time = time.time()
+
     mnist = tf.keras.datasets.mnist
     mnist = mnist.load_data()
 
@@ -155,20 +164,28 @@ if __name__ == "__main__":
     #learning_rate,decay_lr,dropout,dropout_size,epochs,
     #batch_size,loss,metrics):
 
-    hidden_units_list = [200]
-    #hidden_units_list = [16*i for i in range(784//16) if i!=0]
-    val_acc_list = []
-    for hidden_units in hidden_units_list:
+    # hidden_units_list = [200]
+    # #hidden_units_list = [16*i for i in range(784//16) if i!=0]
+    # val_acc_list = []
+    # for hidden_units in hidden_units_list:
 
-        compiled_model = Model(mnist,hidden_units,1,60000,0.01,False,True,0.25,10,100,
-                     'sparse_categorical_crossentropy',['accuracy'])
+    compiled_model = Model(mnist,200,1,60000,0.01,False,True,0.25,10,100,
+                 'sparse_categorical_crossentropy',['accuracy'])
 
-        trained_model = Train(compiled_model)
-        trained_model = trained_model.trained_model
+    trained_model = Train(compiled_model)
+    trained_model = trained_model.trained_model
 
-        evaluate = Evaluate(compiled_model,trained_model)
+    evaluate = Evaluate(compiled_model,trained_model)
 
-        val_acc_list.append(evaluate.val_acc)
+    print(evaluate.val_acc)
 
-    hidden_units_plot = Plot(hidden_units_list,val_acc_list,"hidden units","accuracy")
-    hidden_units_plot.scatter_plot()
+    #print time it took to execute program
+    print("--- %s seconds ---" % (time.time() - start_time))
+
+    #24 sec on gpu
+    #24.5sec on cpu
+
+    # val_acc_list.append(evaluate.val_acc)
+
+    # hidden_units_plot = Plot(hidden_units_list,val_acc_list,"hidden units","accuracy")
+    # hidden_units_plot.scatter_plot()
