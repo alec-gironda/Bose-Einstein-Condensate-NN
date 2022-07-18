@@ -1,0 +1,33 @@
+# connection = create_server_connection("localhost", "root", "Stew2Crew!")
+# create_database_query = "CREATE DATABASE mnist_db"
+# create_database(connection,create_database_query)
+#
+# create_mnist_table = """
+# CREATE TABLE mnist (
+#   nn_id INT PRIMARY KEY,
+#   hidden_units INT,
+#   layers INT,
+#   training_size INT,
+#   learning_rate INT,
+#   decay_lr BOOLEAN,
+#   dropout BOOLEAN,
+#   dropout_size FLOAT,
+#   epochs INT,
+#   batch_size INT,
+#   loss VARCHAR(40) NOT NULL,
+#   metrics VARCHAR(40) NOT NULL,
+#   activation VARCHAR(40) NOT NULL
+#   );
+#  """
+
+# alter_mnist_table = """
+#
+# ALTER TABLE mnist
+# ADD accuracy INT
+# ;
+#
+# """
+
+
+connection = create_db_connection("localhost", "root", "Stew2Crew!", "mnist_db")
+execute_query(connection, 

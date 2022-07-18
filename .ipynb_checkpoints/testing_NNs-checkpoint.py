@@ -108,7 +108,7 @@ class Model:
                 curr_hidden_units //=2
                 if curr_hidden_units <10:
                     curr_hidden_units = 10
-        model.add(tf.keras.layers.Dense(10,activation='softmax'))
+        model.add(tf.keras.layers.Dense(10,activation=tf.nn.softmax))
 
         optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate)
 
@@ -198,48 +198,59 @@ def main():
 
     connection = db.create_db_connection("localhost", "root", "Stew2Crew!", "mnist_db")
 
-    mnist = tf.keras.datasets.mnist
-    mnist = mnist.load_data()
-    mnist_list = [mnist]
+    # mnist = tf.keras.datasets.mnist
+    # mnist = mnist.load_data()
+    #
+    # #hidden_units_list = [16*i for i in range(784//16) if i!=0]
+    # layer_list = np.arange(1,5)
+    # val_acc_list = []
+    # populate_mnist_table = "INSERT INTO mnist VALUES \n"
+    # for i in layer_list:
+    #
+    #     #(self,dataset,hidden_units,layers,training_size,
+    #     #learning_rate,decay_lr,dropout,dropout_size,epochs,
+    #     #batch_size,loss,metrics,activation):
+    #
+    #     compiled_model = Model(mnist,200,i,60000,0.01,True,False,0.25,10,100,
+    #                  'sparse_categorical_crossentropy','accuracy',tf.nn.relu)
+    #
+    #     trained_model = Train(compiled_model)
+    #     trained_model = trained_model.trained_model
+    #
+    #     evaluate = Evaluate(compiled_model,trained_model)
+    #
+    #     data_tuple = (i,200,i,60000,0.01,True,False,0.25,10,100,
+    #                     'sparse_categorical_crossentropy','accuracy','tf.nn.relu',
+    #                     evaluate.val_acc)
+    #
+    #     #val_acc_list.append(evaluate.val_acc)
+    #
+    # # training_size_plot = Plot(layer_list,val_acc_list,"number of layers","accuracy")
+    # # training_size_plot.scatter_plot()
+    #
+    #     populate_mnist_table += str(data_tuple) + ",\n"
+    #
+    # populate_mnist_table = populate_mnist_table[:-2] + ";"
+    #
+    # db.execute_query(connection,populate_mnist_table)
+    #
+    select_all_query = "SELECT * FROM mnist"
 
-    populate_mnist_table = "INSERT INTO mnist VALUES \n"
+    results = db.read_query(connection,select_all_query)
 
-    with open('mnist_tests.txt') as f:
-        lines = f.readlines()
-    for line in lines:
-        mnist_list.extend(line.rstrip('\n').split(','))
-        input = mnist_list
-        mnist_list = [mnist]
+    from_db = []
 
-        '''
+    for result in results:
+      result = list(result)
+      from_db.append(result)
 
-        dataset,hidden_units,layers,training_size,
-        learning_rate,decay_lr,dropout,dropout_size,epochs,
-        batch_size,loss,metrics,activation):
+    columns = ["nn_id", "hidden_units", "layers", "training_size", "learning_rate",
+                "decay_lr","dropout","dropout_size","epochs","batch_size","loss",
+                "metrics","activation","accuracy"]
 
-        '''
+    df = pd.DataFrame(from_db, columns=columns)
 
-        compiled_model = Model(input[0],int(input[2]),int(input[3]),int(input[4]),
-                               float(input[5]),bool(input[6]),bool(input[7]),float(input[8]),
-                               int(input[9]),int(input[10]),input[11],input[12],input[13])
-
-        trained_model = Train(compiled_model)
-        trained_model = trained_model.trained_model
-
-        evaluate = Evaluate(compiled_model,trained_model)
-
-        data_tuple = (int(input[1]),int(input[2]),int(input[3]),int(input[4]),
-                      float(input[5]),bool(input[6]),bool(input[7]),float(input[8]),
-                      int(input[9]),int(input[10]),input[11],input[12],input[13],evaluate.val_acc)
-
-        populate_mnist_table += str(data_tuple) + ",\n"
-
-    populate_mnist_table = populate_mnist_table[:-2] + ";"
-
-    db.execute_query(connection,populate_mnist_table)
-
-    # training_size_plot = Plot(layer_list,val_acc_list,"number of layers","accuracy")
-    # training_size_plot.scatter_plot()
+    print(df)
 
 
 if __name__ == "__main__":
