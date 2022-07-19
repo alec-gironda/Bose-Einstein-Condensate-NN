@@ -66,6 +66,10 @@ class Model:
         self.x_test = tf.keras.utils.normalize(processed_data[2],axis=1)
         self.y_test = processed_data[3]
 
+        #convolutional NN stuff
+        self.x_train = self.x_train.reshape((self.x_train.shape[0], 28, 28, 1))
+        self.x_test = self.x_test.reshape((self.x_test.shape[0], 28, 28, 1))
+
         self.compiled_model = self.compile_model(self.hidden_units,
                                                  self.learning_rate,
                                                  self.dropout,self.dropout_size,
@@ -98,24 +102,52 @@ class Model:
         '''
 
 
-        model = tf.keras.models.Sequential()
+        # model = tf.keras.models.Sequential()
+        # model.add(tf.keras.layers.Flatten())
+        # curr_hidden_units = hidden_units
+        # for layer in range(layers):
+        #     model.add(tf.keras.layers.Dense(curr_hidden_units,activation=activation))
+        #     if dropout:
+        #         model.add(tf.keras.layers.Dropout(dropout_size))
+        #         curr_hidden_units //=2
+        #         if curr_hidden_units <10:
+        #             curr_hidden_units = 10
+        # model.add(tf.keras.layers.Dense(10,activation='softmax'))
+        #
+        # optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate)
+        #
+        # model.compile(optimizer=optimizer,loss=loss,
+        #               metrics=metrics)
+
+        model = tf.keras.Sequential()
+
+        model.add(tf.keras.layers.Conv2D(kernel_size=3,filters=12,use_bias=False,padding='same'))
+        model.add(tf.keras.layers.BatchNormalization(center=True,scale=False))
+        model.add(tf.keras.layers.Activation(activation))
+
+        model.add(tf.keras.layers.Conv2D(kernel_size=6,filters=24,use_bias=False,padding='same',strides=2))
+        model.add(tf.keras.layers.BatchNormalization(center=True,scale=False))
+        model.add(tf.keras.layers.Activation(activation))
+
+        model.add(tf.keras.layers.Conv2D(kernel_size=6,filters=32,use_bias=False,padding='same',strides=2))
+        model.add(tf.keras.layers.BatchNormalization(center=True,scale=False))
+        model.add(tf.keras.layers.Activation(activation))
+
         model.add(tf.keras.layers.Flatten())
-        curr_hidden_units = hidden_units
-        for layer in range(layers):
-            model.add(tf.keras.layers.Dense(curr_hidden_units,activation=activation))
-            if dropout:
-                model.add(tf.keras.layers.Dropout(dropout_size))
-                curr_hidden_units //=2
-                if curr_hidden_units <10:
-                    curr_hidden_units = 10
+
+        model.add(tf.keras.layers.Dense(200,use_bias=False))
+        model.add(tf.keras.layers.BatchNormalization(center=True,scale=False))
+        model.add(tf.keras.layers.Activation(activation))
+
+        model.add(tf.keras.layers.Dropout(dropout_size))
         model.add(tf.keras.layers.Dense(10,activation='softmax'))
 
         optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate)
 
-        model.compile(optimizer=optimizer,loss=loss,
-                      metrics=metrics)
+        model.compile(optimizer=optimizer,loss=loss,metrics=metrics)
 
         return model
+
 
 class Train:
     '''
@@ -196,7 +228,7 @@ def main():
 
     db = Database()
 
-    connection = db.create_db_connection("localhost", "root", "Stew2Crew!", "mnist_db")
+    connection = db.create_db_connection("140.233.160.216", "agironda", "phys_research1", "mnist_db")
 
     mnist = tf.keras.datasets.mnist
     mnist = mnist.load_data()
