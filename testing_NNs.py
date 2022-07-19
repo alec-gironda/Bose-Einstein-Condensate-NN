@@ -241,6 +241,8 @@ def main():
     # training_size_plot = Plot(layer_list,val_acc_list,"number of layers","accuracy")
     # training_size_plot.scatter_plot()
 
+    #/usr/local/mysql/bin/mysql -u root -p
+
 
 if __name__ == "__main__":
 
