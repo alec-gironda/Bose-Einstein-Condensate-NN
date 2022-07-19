@@ -39,7 +39,7 @@ class Model:
 
     def __init__(self,dataset,hidden_units,layers,training_size,
                 learning_rate,decay_lr,dropout,dropout_size,epochs,
-                batch_size,loss,metrics,activation):
+                batch_size,loss,metrics,activation,convolutional):
 
         #read in inputs
         self.dataset = dataset
@@ -55,6 +55,7 @@ class Model:
         self.loss = loss
         self.metrics = [metrics]
         self.activation = activation
+        self.convolutional = convolutional
 
         processed_data = self.process_dataset_input(self.dataset)
 
@@ -74,7 +75,7 @@ class Model:
                                                  self.learning_rate,
                                                  self.dropout,self.dropout_size,
                                                  self.loss,self.metrics,self.activation,
-                                                 self.layers)
+                                                 self.layers,self.convolutional)
 
     def process_dataset_input(self,dataset):
         '''
@@ -94,57 +95,62 @@ class Model:
         return [x_train,y_train,x_test,y_test]
 
     def compile_model(self,hidden_units,learning_rate,
-                      dropout,dropout_size,loss,metrics,activation,layers):
+                      dropout,dropout_size,loss,metrics,activation,layers,
+                      convolutional):
 
         '''
         the actual architecture of the model
 
         '''
 
+        if convolutional:
 
-        # model = tf.keras.models.Sequential()
-        # model.add(tf.keras.layers.Flatten())
-        # curr_hidden_units = hidden_units
-        # for layer in range(layers):
-        #     model.add(tf.keras.layers.Dense(curr_hidden_units,activation=activation))
-        #     if dropout:
-        #         model.add(tf.keras.layers.Dropout(dropout_size))
-        #         curr_hidden_units //=2
-        #         if curr_hidden_units <10:
-        #             curr_hidden_units = 10
-        # model.add(tf.keras.layers.Dense(10,activation='softmax'))
-        #
-        # optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate)
-        #
-        # model.compile(optimizer=optimizer,loss=loss,
-        #               metrics=metrics)
+            model = tf.keras.Sequential()
 
-        model = tf.keras.Sequential()
+            model.add(tf.keras.layers.Conv2D(kernel_size=3,filters=12,use_bias=False,padding='same'))
+            model.add(tf.keras.layers.BatchNormalization(center=True,scale=False))
+            model.add(tf.keras.layers.Activation(activation))
 
-        model.add(tf.keras.layers.Conv2D(kernel_size=3,filters=12,use_bias=False,padding='same'))
-        model.add(tf.keras.layers.BatchNormalization(center=True,scale=False))
-        model.add(tf.keras.layers.Activation(activation))
+            model.add(tf.keras.layers.Conv2D(kernel_size=6,filters=24,use_bias=False,padding='same',strides=2))
+            model.add(tf.keras.layers.BatchNormalization(center=True,scale=False))
+            model.add(tf.keras.layers.Activation(activation))
 
-        model.add(tf.keras.layers.Conv2D(kernel_size=6,filters=24,use_bias=False,padding='same',strides=2))
-        model.add(tf.keras.layers.BatchNormalization(center=True,scale=False))
-        model.add(tf.keras.layers.Activation(activation))
+            model.add(tf.keras.layers.Conv2D(kernel_size=6,filters=32,use_bias=False,padding='same',strides=2))
+            model.add(tf.keras.layers.BatchNormalization(center=True,scale=False))
+            model.add(tf.keras.layers.Activation(activation))
 
-        model.add(tf.keras.layers.Conv2D(kernel_size=6,filters=32,use_bias=False,padding='same',strides=2))
-        model.add(tf.keras.layers.BatchNormalization(center=True,scale=False))
-        model.add(tf.keras.layers.Activation(activation))
+            model.add(tf.keras.layers.Flatten())
 
-        model.add(tf.keras.layers.Flatten())
+            model.add(tf.keras.layers.Dense(200,use_bias=False))
+            model.add(tf.keras.layers.BatchNormalization(center=True,scale=False))
+            model.add(tf.keras.layers.Activation(activation))
 
-        model.add(tf.keras.layers.Dense(200,use_bias=False))
-        model.add(tf.keras.layers.BatchNormalization(center=True,scale=False))
-        model.add(tf.keras.layers.Activation(activation))
+            model.add(tf.keras.layers.Dropout(dropout_size))
+            model.add(tf.keras.layers.Dense(10,activation='softmax'))
 
-        model.add(tf.keras.layers.Dropout(dropout_size))
-        model.add(tf.keras.layers.Dense(10,activation='softmax'))
+            optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate)
 
-        optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate)
+            model.compile(optimizer=optimizer,loss=loss,metrics=metrics)
 
-        model.compile(optimizer=optimizer,loss=loss,metrics=metrics)
+        else:
+
+            model = tf.keras.models.Sequential()
+            model.add(tf.keras.layers.Flatten())
+            curr_hidden_units = hidden_units
+            for layer in range(layers):
+                model.add(tf.keras.layers.Dense(curr_hidden_units,activation=activation))
+                if dropout:
+                    model.add(tf.keras.layers.Dropout(dropout_size))
+                    curr_hidden_units //=2
+                    if curr_hidden_units <10:
+                        curr_hidden_units = 10
+            model.add(tf.keras.layers.Dense(10,activation='softmax'))
+
+            optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate)
+
+            model.compile(optimizer=optimizer,loss=loss,
+                          metrics=metrics)
+
 
         return model
 
@@ -247,13 +253,14 @@ def main():
 
         dataset,hidden_units,layers,training_size,
         learning_rate,decay_lr,dropout,dropout_size,epochs,
-        batch_size,loss,metrics,activation):
+        batch_size,loss,metrics,activation,convolutional):
 
         '''
 
         compiled_model = Model(input[0],int(input[2]),int(input[3]),int(input[4]),
-                               float(input[5]),bool(input[6]),bool(input[7]),float(input[8]),
-                               int(input[9]),int(input[10]),input[11],input[12],input[13])
+                               float(input[5]),bool(int(input[6])),bool(int(input[7])),float(input[8]),
+                               int(input[9]),int(input[10]),input[11],input[12],input[13],
+                               bool(int(input[14])))
 
         trained_model = Train(compiled_model)
         trained_model = trained_model.trained_model
@@ -261,8 +268,8 @@ def main():
         evaluate = Evaluate(compiled_model,trained_model)
 
         data_tuple = (int(input[1]),int(input[2]),int(input[3]),int(input[4]),
-                      float(input[5]),bool(input[6]),bool(input[7]),float(input[8]),
-                      int(input[9]),int(input[10]),input[11],input[12],input[13],evaluate.val_acc)
+                      float(input[5]),bool(int(input[6])),bool(int(input[7])),float(input[8]),
+                      int(input[9]),int(input[10]),input[11],input[12],input[13],bool(int(input[14])),evaluate.val_acc)
 
         populate_mnist_table += str(data_tuple) + ",\n"
 
