@@ -111,13 +111,17 @@ class Model:
             model.add(tf.keras.layers.BatchNormalization(center=True,scale=False))
             model.add(tf.keras.layers.Activation(activation))
 
-            model.add(tf.keras.layers.Conv2D(kernel_size=6,filters=24,use_bias=False,padding='same',strides=2))
-            model.add(tf.keras.layers.BatchNormalization(center=True,scale=False))
-            model.add(tf.keras.layers.Activation(activation))
+            if layers > 1:
 
-            model.add(tf.keras.layers.Conv2D(kernel_size=6,filters=32,use_bias=False,padding='same',strides=2))
-            model.add(tf.keras.layers.BatchNormalization(center=True,scale=False))
-            model.add(tf.keras.layers.Activation(activation))
+                model.add(tf.keras.layers.Conv2D(kernel_size=6,filters=24,use_bias=False,padding='same',strides=2))
+                model.add(tf.keras.layers.BatchNormalization(center=True,scale=False))
+                model.add(tf.keras.layers.Activation(activation))
+
+            if layers >2:
+
+                model.add(tf.keras.layers.Conv2D(kernel_size=6,filters=32,use_bias=False,padding='same',strides=2))
+                model.add(tf.keras.layers.BatchNormalization(center=True,scale=False))
+                model.add(tf.keras.layers.Activation(activation))
 
             model.add(tf.keras.layers.Flatten())
 
@@ -125,7 +129,8 @@ class Model:
             model.add(tf.keras.layers.BatchNormalization(center=True,scale=False))
             model.add(tf.keras.layers.Activation(activation))
 
-            model.add(tf.keras.layers.Dropout(dropout_size))
+            if dropout:
+                model.add(tf.keras.layers.Dropout(dropout_size))
             model.add(tf.keras.layers.Dense(10,activation='softmax'))
 
             optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate)
