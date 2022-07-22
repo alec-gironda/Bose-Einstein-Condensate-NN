@@ -1,6 +1,7 @@
 import numpy as np
 import math
 import random
+import time
 
 def calculate_runtime(func):
     '''
@@ -19,6 +20,7 @@ def calculate_runtime(func):
 
 class GenerateData:
 
+    @calculate_runtime
     def __init__(self,training_size,test_size):
 
         x_train,y_train = self.generate_data(training_size)
@@ -32,7 +34,6 @@ class GenerateData:
                 n_arr[x][y] = (1/temp)*math.e**(-(x-length//2)**2/temp)*math.e**(-(y-length//2)**2/temp)+np.random.normal(0,0.01)
         return n_arr
 
-    @calculate_runtime
     def generate_data(self,size):
 
         x_data = []
