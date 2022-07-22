@@ -23,13 +23,8 @@ class GenerateData:
     @calculate_runtime
     def __init__(self,training_size,test_size):
 
-        self.training_data = self.generate_data(training_size)
-        self.x_train = self.training_data[0]
-        self.y_train = self.training_data[1]
-
-        self.test_data = self.generate_data(test_size)
-        self.x_test = self.test_data[0]
-        self.y_test = self.test_data[1]
+        x_train,y_train = self.generate_data(training_size)
+        x_test,y_test = self.generate_data(test_size)
 
     def generate_noise_image(self,temp,length):
         n_arr = np.zeros((length,length))
@@ -45,15 +40,15 @@ class GenerateData:
         y_data = []
 
         for i in range(size//2):
-            curr_img = self.generate_noise_image(0.5,7)
+            curr_img = self.generate_noise_image(0.5,29)
             x_data.append(curr_img)
-            y_data.append(0)
+            y_data.append(0.5)
         for i in range(size//2):
-            curr_img = self.generate_noise_image(2,7)
+            curr_img = self.generate_noise_image(2,29)
             x_data.append(curr_img)
-            y_data.append(1)
+            y_data.append(2)
 
-        x_data,y_data = self.shuffle_data(x_data,y_data)
+        self.shuffle_data(x_data,y_data)
 
         return x_data,y_data
 
@@ -62,4 +57,6 @@ class GenerateData:
         random.shuffle(shuffle_list)
         x_data, y_data = zip(*shuffle_list)
         x_data, y_data = list(x_data), list(y_data)
-        return x_data,y_data
+
+if __name__ == "__main__":
+    generate = GenerateData(100000,50000)
