@@ -44,14 +44,22 @@ class GenerateData:
         x_data = []
         y_data = []
 
-        for i in range(size//2):
+        for i in range(size//4):
             curr_img = self.generate_noise_image(0.5,7)
             x_data.append(curr_img)
             y_data.append(0)
-        for i in range(size//2):
-            curr_img = self.generate_noise_image(2,7)
+        for i in range(size//4):
+            curr_img = self.generate_noise_image(1,7)
             x_data.append(curr_img)
             y_data.append(1)
+        for i in range(size//4):
+            curr_img = self.generate_noise_image(1.5,7)
+            x_data.append(curr_img)
+            y_data.append(2)
+        for i in range(size//4):
+            curr_img = self.generate_noise_image(2,7)
+            x_data.append(curr_img)
+            y_data.append(3)
 
         x_data,y_data = self.shuffle_data(x_data,y_data)
 
