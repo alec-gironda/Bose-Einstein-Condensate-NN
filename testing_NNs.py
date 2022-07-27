@@ -6,7 +6,18 @@ import math
 import time
 #from NN_database import Database
 import pandas as pd
+import csv
+import ast
+import sys
+import ujson
+import msgspec
 from generate_temp_nn_data import GenerateData
+
+'''
+
+throw error if batch size is less than data set size
+
+'''
 
 
 def calculate_runtime(func):
@@ -246,7 +257,22 @@ def main():
     # mnist = tf.keras.datasets.mnist
     # mnist = mnist.load_data()
     # mnist_list = [mnist]
-    data = GenerateData(1000,500,0.03,100).data_tup
+
+    # Opening JSON file
+    # with open('temp_nn_data.json', 'rb') as openfile:
+    #
+    #     # Reading from json file
+    #     data = msgspec.json.decode(openfile.read())
+    #     # resolution_length = data[2]
+    #     # data = data[:-1]
+
+    training_size = 10000
+    test_size = 5000
+    noise_spread = 0.03
+    resolution_length = 100
+
+    data = GenerateData(training_size,test_size,noise_spread,resolution_length).data_list
+
 
     temp_nn_list = [data]
 
@@ -271,7 +297,7 @@ def main():
         compiled_model = Model(input[0],int(input[2]),int(input[3]),int(input[4]),
                                float(input[5]),bool(int(input[6])),bool(int(input[7])),float(input[8]),
                                int(input[9]),int(input[10]),input[11],input[12],input[13],
-                               bool(int(input[14])),int(input[15]))
+                               bool(int(input[14])),resolution_length)
 
         trained_model = Train(compiled_model)
         trained_model = trained_model.trained_model
