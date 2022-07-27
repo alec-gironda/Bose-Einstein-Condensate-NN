@@ -4,8 +4,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 import math
 import time
-from NN_database import Database
+#from NN_database import Database
 import pandas as pd
+from generate_temp_nn_data import GenerateData
 
 
 def calculate_runtime(func):
@@ -39,7 +40,7 @@ class Model:
 
     def __init__(self,dataset,hidden_units,layers,training_size,
                 learning_rate,decay_lr,dropout,dropout_size,epochs,
-                batch_size,loss,metrics,activation,convolutional):
+                batch_size,loss,metrics,activation,convolutional,resolution_length):
 
         #read in inputs
         self.dataset = dataset
@@ -56,6 +57,7 @@ class Model:
         self.metrics = [metrics]
         self.activation = activation
         self.convolutional = convolutional
+        self.resolution_length = resolution_length
 
         processed_data = self.process_dataset_input(self.dataset)
 
@@ -68,8 +70,8 @@ class Model:
         self.y_test = processed_data[3]
 
         #convolutional NN stuff
-        self.x_train = self.x_train.reshape((self.x_train.shape[0], 28, 28, 1))
-        self.x_test = self.x_test.reshape((self.x_test.shape[0], 28, 28, 1))
+        self.x_train = self.x_train.reshape((self.x_train.shape[0], self.resolution_length, self.resolution_length, 1)).tolist()
+        self.x_test = self.x_test.reshape((self.x_test.shape[0], self.resolution_length, self.resolution_length, 1)).tolist()
 
         self.compiled_model = self.compile_model(self.hidden_units,
                                                  self.learning_rate,
@@ -237,22 +239,26 @@ def main():
     #check CPU performance vs GPU
     #os.environ["CUDA_VISIBLE_DEVICES"]="-1"
 
-    db = Database()
+    #db = Database()
 
-    connection = db.create_db_connection("140.233.160.216", "agironda", "phys_research1", "mnist_db")
+    #connection = db.create_db_connection("140.233.160.216", "agironda", "phys_research1", "mnist_db")
 
-    mnist = tf.keras.datasets.mnist
-    mnist = mnist.load_data()
-    mnist_list = [mnist]
+    # mnist = tf.keras.datasets.mnist
+    # mnist = mnist.load_data()
+    # mnist_list = [mnist]
+    data = GenerateData(1000,500,0.03,100).data_tup
 
-    populate_mnist_table = "INSERT INTO mnist VALUES \n"
+    temp_nn_list = [data]
 
-    with open('mnist_tests.txt') as f:
+    #populate_mnist_table = "INSERT INTO mnist VALUES \n"
+
+    with open('temp_nn_tests.txt') as f:
         lines = f.readlines()
     for line in lines:
-        mnist_list.extend(line.rstrip('\n').split(','))
-        input = mnist_list
-        mnist_list = [mnist]
+        #mnist_list.extend(line.rstrip('\n').split(','))
+        temp_nn_list.extend(line.rstrip('\n').split(','))
+        input = temp_nn_list
+        temp_nn_list = [data]
 
         '''
 
@@ -265,22 +271,22 @@ def main():
         compiled_model = Model(input[0],int(input[2]),int(input[3]),int(input[4]),
                                float(input[5]),bool(int(input[6])),bool(int(input[7])),float(input[8]),
                                int(input[9]),int(input[10]),input[11],input[12],input[13],
-                               bool(int(input[14])))
+                               bool(int(input[14])),int(input[15]))
 
         trained_model = Train(compiled_model)
         trained_model = trained_model.trained_model
 
         evaluate = Evaluate(compiled_model,trained_model)
 
-        data_tuple = (int(input[1]),int(input[2]),int(input[3]),int(input[4]),
-                      float(input[5]),bool(int(input[6])),bool(int(input[7])),float(input[8]),
-                      int(input[9]),int(input[10]),input[11],input[12],input[13],bool(int(input[14])),evaluate.val_acc)
+        # data_tuple = (int(input[1]),int(input[2]),int(input[3]),int(input[4]),
+        #               float(input[5]),bool(int(input[6])),bool(int(input[7])),float(input[8]),
+        #               int(input[9]),int(input[10]),input[11],input[12],input[13],bool(int(input[14])),evaluate.val_acc)
 
-        populate_mnist_table += str(data_tuple) + ",\n"
+        #populate_mnist_table += str(data_tuple) + ",\n"
 
-    populate_mnist_table = populate_mnist_table[:-2] + ";"
+    #populate_mnist_table = populate_mnist_table[:-2] + ";"
 
-    db.execute_query(connection,populate_mnist_table)
+    #db.execute_query(connection,populate_mnist_table)
 
     # training_size_plot = Plot(layer_list,val_acc_list,"number of layers","accuracy")
     # training_size_plot.scatter_plot()
