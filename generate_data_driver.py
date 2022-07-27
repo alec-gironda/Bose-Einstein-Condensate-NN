@@ -19,8 +19,8 @@ def calculate_runtime(func):
 
 def main():
 
-    training_size = 10000
-    test_size = 5000
+    training_size = 1000
+    test_size = 500
     noise_spread = 0.03
     resolution_length = 100
 

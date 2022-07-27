@@ -6,11 +6,6 @@ import math
 import time
 #from NN_database import Database
 import pandas as pd
-import csv
-import ast
-import sys
-import ujson
-import msgspec
 from generate_temp_nn_data import GenerateData
 
 '''
@@ -266,8 +261,8 @@ def main():
     #     # resolution_length = data[2]
     #     # data = data[:-1]
 
-    training_size = 10000
-    test_size = 5000
+    training_size = 1000
+    test_size = 500
     noise_spread = 0.03
     resolution_length = 100
 
@@ -294,7 +289,7 @@ def main():
 
         '''
 
-        compiled_model = Model(input[0],int(input[2]),int(input[3]),int(input[4]),
+        compiled_model = Model(input[0],int(input[2]),training_size,int(input[4]),
                                float(input[5]),bool(int(input[6])),bool(int(input[7])),float(input[8]),
                                int(input[9]),int(input[10]),input[11],input[12],input[13],
                                bool(int(input[14])),resolution_length)
