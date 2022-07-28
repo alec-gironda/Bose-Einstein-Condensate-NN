@@ -139,7 +139,7 @@ class Model:
 
             if dropout:
                 model.add(tf.keras.layers.Dropout(dropout_size))
-            model.add(tf.keras.layers.Dense(10,activation='softmax'))
+            model.add(tf.keras.layers.Dense(4,activation='softmax'))
 
             optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate)
 
@@ -157,7 +157,7 @@ class Model:
                     curr_hidden_units //=2
                     if curr_hidden_units <10:
                         curr_hidden_units = 10
-            model.add(tf.keras.layers.Dense(10,activation='softmax'))
+            model.add(tf.keras.layers.Dense(4,activation='softmax'))
 
             optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate)
 
@@ -264,9 +264,9 @@ def main():
     training_size = 1000
     test_size = 500
     noise_spread = 0.03
-    resolution_length = 100
+    resolution_length = 7
 
-    data = GenerateData(training_size,test_size,noise_spread,resolution_length).data_list
+    data = GenerateData(training_size,test_size,noise_spread,resolution_length).data_tup
 
 
     temp_nn_list = [data]
@@ -295,6 +295,7 @@ def main():
                                bool(int(input[14])),resolution_length)
 
         trained_model = Train(compiled_model)
+
         trained_model = trained_model.trained_model
 
         evaluate = Evaluate(compiled_model,trained_model)

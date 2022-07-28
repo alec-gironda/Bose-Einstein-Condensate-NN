@@ -34,7 +34,7 @@ class GenerateData:
         self.x_test = self.test_data[0]
         self.y_test = self.test_data[1]
 
-        self.data_list = [(self.x_train,self.y_train),(self.x_test,self.y_test)]
+        self.data_tup = ((self.x_train,self.y_train),(self.x_test,self.y_test))
 
     def generate_noise_image(self,temp,length,noise_spread):
         n_arr = np.zeros((length,length))
