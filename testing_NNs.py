@@ -67,17 +67,24 @@ class Model:
 
         processed_data = self.process_dataset_input(self.dataset)
 
-        self.x_train = tf.keras.utils.normalize(processed_data[0][:self.training_size],axis=1)
+        #self.x_train = tf.keras.utils.normalize(processed_data[0][:self.training_size],axis=1)
+        self.x_train = processed_data[0][:self.training_size]
         self.y_train = processed_data[1][:self.training_size]
 
         self.steps_per_epoch = len(self.x_train)//self.batch_size
 
-        self.x_test = tf.keras.utils.normalize(processed_data[2],axis=1)
+        #self.x_test = tf.keras.utils.normalize(processed_data[2],axis=1)
+        self.x_test = processed_data[2]
         self.y_test = processed_data[3]
 
         #convolutional NN stuff
-        self.x_train = self.x_train.reshape((self.x_train.shape[0], self.resolution_length, self.resolution_length, 1)).tolist()
-        self.x_test = self.x_test.reshape((self.x_test.shape[0], self.resolution_length, self.resolution_length, 1)).tolist()
+        if convolutional:
+            self.x_train = np.asarray(self.x_train)
+            #self.x_test = np.asarray(self.x_test)
+            self.x_train = self.x_train.reshape((self.x_train.shape[0], self.resolution_length, self.resolution_length, 1)).tolist()
+            #self.x_test = self.x_test.reshape((self.x_test.shape[0], self.resolution_length, self.resolution_length, 1)).tolist()
+
+            print(np.shape(self.x_train),np.shape(self.y_train))
 
         self.compiled_model = self.compile_model(self.hidden_units,
                                                  self.learning_rate,
@@ -132,8 +139,7 @@ class Model:
                 model.add(tf.keras.layers.Activation(activation))
 
             model.add(tf.keras.layers.Flatten())
-
-            model.add(tf.keras.layers.Dense(200,use_bias=False))
+            model.add(tf.keras.layers.Dense(hidden_units,use_bias=False))
             model.add(tf.keras.layers.BatchNormalization(center=True,scale=False))
             model.add(tf.keras.layers.Activation(activation))
 
@@ -242,41 +248,19 @@ class Plot:
 
 def main():
 
-    #check CPU performance vs GPU
-    #os.environ["CUDA_VISIBLE_DEVICES"]="-1"
-
-    #db = Database()
-
-    #connection = db.create_db_connection("140.233.160.216", "agironda", "phys_research1", "mnist_db")
-
-    # mnist = tf.keras.datasets.mnist
-    # mnist = mnist.load_data()
-    # mnist_list = [mnist]
-
-    # Opening JSON file
-    # with open('temp_nn_data.json', 'rb') as openfile:
-    #
-    #     # Reading from json file
-    #     data = msgspec.json.decode(openfile.read())
-    #     # resolution_length = data[2]
-    #     # data = data[:-1]
-
-    training_size = 1000
-    test_size = 500
+    training_size = 10000
+    test_size = 5000
     noise_spread = 0.03
-    resolution_length = 7
+    resolution_length = 100
 
     data = GenerateData(training_size,test_size,noise_spread,resolution_length).data_tup
 
 
     temp_nn_list = [data]
 
-    #populate_mnist_table = "INSERT INTO mnist VALUES \n"
-
     with open('temp_nn_tests.txt') as f:
         lines = f.readlines()
     for line in lines:
-        #mnist_list.extend(line.rstrip('\n').split(','))
         temp_nn_list.extend(line.rstrip('\n').split(','))
         input = temp_nn_list
         temp_nn_list = [data]
@@ -288,8 +272,7 @@ def main():
         batch_size,loss,metrics,activation,convolutional):
 
         '''
-
-        compiled_model = Model(input[0],int(input[2]),training_size,int(input[4]),
+        compiled_model = Model(input[0],int(input[2]),int(input[3]),training_size,
                                float(input[5]),bool(int(input[6])),bool(int(input[7])),float(input[8]),
                                int(input[9]),int(input[10]),input[11],input[12],input[13],
                                bool(int(input[14])),resolution_length)
@@ -299,21 +282,6 @@ def main():
         trained_model = trained_model.trained_model
 
         evaluate = Evaluate(compiled_model,trained_model)
-
-        # data_tuple = (int(input[1]),int(input[2]),int(input[3]),int(input[4]),
-        #               float(input[5]),bool(int(input[6])),bool(int(input[7])),float(input[8]),
-        #               int(input[9]),int(input[10]),input[11],input[12],input[13],bool(int(input[14])),evaluate.val_acc)
-
-        #populate_mnist_table += str(data_tuple) + ",\n"
-
-    #populate_mnist_table = populate_mnist_table[:-2] + ";"
-
-    #db.execute_query(connection,populate_mnist_table)
-
-    # training_size_plot = Plot(layer_list,val_acc_list,"number of layers","accuracy")
-    # training_size_plot.scatter_plot()
-
-    #/usr/local/mysql/bin/mysql -u root -p
 
 
 if __name__ == "__main__":
