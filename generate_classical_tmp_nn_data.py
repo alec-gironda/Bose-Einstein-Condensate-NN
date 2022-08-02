@@ -3,38 +3,28 @@ import math
 import random
 import time
 
-def calculate_runtime(func):
-    '''
-    decorator to calculate the runtime of functions
-    while still returning their output
-    '''
-    def wrapper(*args,**kwargs):
-        start_time = time.time()
-
-        out = func(*args,**kwargs)
-
-        print("--- %s seconds ---" % (time.time() - start_time))
-
-        return out
-    return wrapper
-
 class GenerateData:
+
+    def calculate_runtime(func):
+        '''
+        decorator to calculate the runtime of functions
+        while still returning their output
+        '''
+        def wrapper(*args,**kwargs):
+            start_time = time.time()
+
+            out = func(*args,**kwargs)
+
+            print("--- %s seconds ---" % (time.time() - start_time))
+
+            return out
+        return wrapper
 
     @calculate_runtime
     def __init__(self,training_size,test_size,noise_spread,resolution_length):
 
         self.noise_spread = noise_spread
         self.resolution_length = resolution_length
-
-        self.training_data = self.generate_data(training_size,resolution_length,noise_spread)
-        self.x_train = self.training_data[0]
-        self.y_train = self.training_data[1]
-
-        self.test_data = self.generate_data(test_size,resolution_length,noise_spread)
-        self.x_test = self.test_data[0]
-        self.y_test = self.test_data[1]
-
-        self.data_tup = ((self.x_train,self.y_train),(self.x_test,self.y_test))
 
     def generate_noise_image(self,temp,length,noise_spread):
         n_arr = np.zeros((length,length))
@@ -76,3 +66,34 @@ class GenerateData:
         x_data, y_data = zip(*shuffle_list)
         x_data, y_data = list(x_data), list(y_data)
         return x_data,y_data
+
+class GenerateClassicalData(GenerateData):
+
+    def calculate_runtime(func):
+        '''
+        decorator to calculate the runtime of functions
+        while still returning their output
+        '''
+        def wrapper(*args,**kwargs):
+            start_time = time.time()
+
+            out = func(*args,**kwargs)
+
+            print("--- %s seconds ---" % (time.time() - start_time))
+
+            return out
+        return wrapper
+
+    @calculate_runtime
+    def __init__(self,training_size,test_size,noise_spread,resolution_length):
+        super().__init__(training_size,test_size,noise_spread,resolution_length)
+        self.training_data = self.generate_data(training_size,resolution_length,noise_spread)
+        self.test_data = self.generate_data(test_size,resolution_length,noise_spread)
+
+        self.x_train = self.training_data[0]
+        self.y_train = self.training_data[1]
+
+        self.x_test = self.test_data[0]
+        self.y_test = self.test_data[1]
+
+        self.data_tup = ((self.x_train,self.y_train),(self.x_test,self.y_test))
