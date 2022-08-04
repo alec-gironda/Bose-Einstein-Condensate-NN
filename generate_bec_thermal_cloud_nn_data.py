@@ -64,7 +64,7 @@ class GenerateBecThermalCloudData(GenerateData):
             x_data.append(curr_img)
             y_data.append(1)
         for i in range(size//4):
-            curr_img = self.generate_noise_image(150,length,noise_spread,num_atoms,trans_temp)
+            curr_img = self.generate_noise_image(170,length,noise_spread,num_atoms,trans_temp)
             x_data.append(curr_img)
             y_data.append(2)
         for i in range(size//4):
