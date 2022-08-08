@@ -7,3 +7,8 @@ This repository contains Python scripts and Jupyter Notebooks that generate simu
 [Here](https://github.com/alec-gironda/Bose-Einstein-Condensate-NN/blob/main/generate_bec_thermal_cloud_nn_data.py) is the most updated Python script that generates simulated experimental images including a Bose-Einstein Condensate and a thermal cloud.
 
 [Here](https://github.com/alec-gironda/Bose-Einstein-Condensate-NN/blob/main/BEC_Derivations.pdf) is a PDF of the derivation for the equation used to generate simulated experimental images of atom clouds.
+
+
+### Poster From Middlebury College Summer Symposium 8/4/22
+
+![Summer Symposium Poster](https://github.com/alec-gironda/Bose-Einstein-Condensate-NN/blob/main/Symposium_Poster_image.png)
