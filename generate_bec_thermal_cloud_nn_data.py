@@ -55,23 +55,33 @@ class GenerateBecThermalCloudData(GenerateData):
         x_data = []
         y_data = []
 
-        for i in range(size//4):
-            curr_img = self.generate_noise_image(87,length,noise_spread,num_atoms,trans_temp)
-            x_data.append(curr_img)
-            y_data.append(0)
-        for i in range(size//4):
-            curr_img = self.generate_noise_image(125,length,noise_spread,num_atoms,trans_temp)
-            x_data.append(curr_img)
-            y_data.append(1)
-        for i in range(size//4):
-            curr_img = self.generate_noise_image(170,length,noise_spread,num_atoms,trans_temp)
-            x_data.append(curr_img)
-            y_data.append(2)
-        for i in range(size//4):
-            curr_img = self.generate_noise_image(280,length,noise_spread,num_atoms,trans_temp)
-            x_data.append(curr_img)
-            y_data.append(3)
+        #generating discrete temperatures
 
+        # for i in range(size//4):
+        #     curr_img = self.generate_noise_image(87,length,noise_spread,num_atoms,trans_temp)
+        #     x_data.append(curr_img)
+        #     y_data.append(0)
+        # for i in range(size//4):
+        #     curr_img = self.generate_noise_image(125,length,noise_spread,num_atoms,trans_temp)
+        #     x_data.append(curr_img)
+        #     y_data.append(1)
+        # for i in range(size//4):
+        #     curr_img = self.generate_noise_image(170,length,noise_spread,num_atoms,trans_temp)
+        #     x_data.append(curr_img)
+        #     y_data.append(2)
+        # for i in range(size//4):
+        #     curr_img = self.generate_noise_image(280,length,noise_spread,num_atoms,trans_temp)
+        #     x_data.append(curr_img)
+        #     y_data.append(3)
+
+        #generating continuous temperatures
+
+        for i in range(size):
+            temp = np.random.uniform(87,348)
+            curr_img = self.generate_noise_image(temp,length,noise_spread,num_atoms,trans_temp)
+            x_data.append(curr_img)
+            y_data.append(temp)
+        
         x_data,y_data = self.shuffle_data(x_data,y_data)
 
         return x_data,y_data

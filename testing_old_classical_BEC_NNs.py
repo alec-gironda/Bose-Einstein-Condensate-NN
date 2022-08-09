@@ -6,7 +6,7 @@ import math
 import time
 #from NN_database import Database
 import pandas as pd
-from generate_temp_nn_data import GenerateData
+from generate_classical_tmp_nn_data import GenerateClassicalData
 
 '''
 
@@ -248,12 +248,12 @@ class Plot:
 
 def main():
 
-    training_size = 10000
-    test_size = 5000
+    training_size = 100
+    test_size = 50
     noise_spread = 0.03
     resolution_length = 100
 
-    data = GenerateData(training_size,test_size,noise_spread,resolution_length).data_tup
+    data = GenerateClassicalData(training_size,test_size,noise_spread,resolution_length).data_tup
 
 
     temp_nn_list = [data]
