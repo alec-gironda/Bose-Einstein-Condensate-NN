@@ -222,9 +222,9 @@ class Evaluate:
         self.val_acc = statistics[1]
 
     def get_statistics(self,compiled_model,trained_model):
-        val_loss, val_acc = trained_model.evaluate(compiled_model.x_test,
+        val_loss, val_rmse, val_mae = trained_model.evaluate(compiled_model.x_test,
                                                    compiled_model.y_test)
-        return [val_loss,val_acc]
+        return [val_loss, val_rmse, val_mae]
 
 class Plot:
 

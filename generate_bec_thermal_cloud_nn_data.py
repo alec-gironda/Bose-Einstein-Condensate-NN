@@ -41,14 +41,15 @@ class GenerateBecThermalCloudData(GenerateData):
     def generate_noise_image(self,temp,length,noise_spread,num_atoms,trans_temp):
         n_arr = np.zeros((length,length))
         n_arr = n_arr.tolist()
+        width = .1
         for x in range(length):
             for y in range(length):
                 temp_ratio = temp/trans_temp
                 if temp_ratio > 1:
                     temp_ratio =1
-                n_arr[x][y] = (num_atoms*(1-(temp_ratio)**2)*(1/math.pi)*math.e**(-(x-length//2)**2)*math.e**(-(y-length//2)**2)
+                n_arr[x][y] = (num_atoms*(1-(temp_ratio)**2)*(1/math.pi)*math.e**(-width*(x-length//2)**2)*math.e**(-width*(y-length//2)**2)
                               +num_atoms*(temp_ratio)**2*(1/(2*math.pi*temp))
-                              *math.e**((-(x-length//2)**2)/(2*temp))*math.e**((-(y-length//2)**2)/(2*temp))+np.random.normal(0,noise_spread))
+                              *math.e**((-width*(x-length//2)**2)/(2*temp))*math.e**((-width*(y-length//2)**2)/(2*temp))+np.random.normal(0,noise_spread))
         return n_arr
     def generate_data(self,size,length,noise_spread,num_atoms,trans_temp):
 
@@ -77,11 +78,15 @@ class GenerateBecThermalCloudData(GenerateData):
         #generating continuous temperatures
 
         for i in range(size):
+            #temp = np.random.uniform(87,348)
             temp = np.random.uniform(87,348)
+            num_BEC_atoms = 0
+            if temp < trans_temp:
+                num_BEC_atoms = int(num_atoms*(1-(temp/trans_temp)**2))
             curr_img = self.generate_noise_image(temp,length,noise_spread,num_atoms,trans_temp)
             x_data.append(curr_img)
-            y_data.append(temp)
-        
+            y_data.append((temp,num_BEC_atoms))
+
         x_data,y_data = self.shuffle_data(x_data,y_data)
 
         return x_data,y_data
