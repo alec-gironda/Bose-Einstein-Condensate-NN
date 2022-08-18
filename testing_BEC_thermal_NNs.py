@@ -75,7 +75,7 @@ def main():
 
     trans_temp = (num_atoms/(2*1*1.645))**0.5
 
-    data = GenerateBecThermalCloudData(1000,500,0,100,100000,trans_temp)
+    data = GenerateBecThermalCloudData(10,5,0,100,100000,trans_temp)
 
     compiled_model = Model(data.x_train,data.y_train,data.x_test,data.y_test)
 
