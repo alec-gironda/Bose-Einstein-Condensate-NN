@@ -1,35 +1,20 @@
-from generate_temp_nn_data import GenerateData
-import csv
-import msgspec
-
-def calculate_runtime(func):
-    '''
-    decorator to calculate the runtime of functions
-    while still returning their output
-    '''
-    def wrapper(*args,**kwargs):
-        start_time = time.time()
-
-        out = func(*args,**kwargs)
-
-        print("--- %s seconds ---" % (time.time() - start_time))
-
-        return out
-    return wrapper
+from generate_bec_thermal_cloud_nn_data import GenerateBecThermalCloudData
+import pickle
 
 def main():
 
-    training_size = 1000
-    test_size = 500
-    noise_spread = 0.03
+    training_size = 10000
+    test_size = 5000
+    noise_spread = 0
     resolution_length = 100
+    num_atoms = 100000
+    trans_temp = (num_atoms/(2*1*1.645))**0.5
 
-    data = GenerateData(training_size,test_size,noise_spread,resolution_length).data_list
-    data.append(resolution_length)
-    data = tuple(data)
-    jsonObj = msgspec.json.encode(data)
-    with open('temp_nn_data.json', 'wb') as f:
-        f.write(jsonObj)
+    generate = GenerateBecThermalCloudData(training_size,test_size,noise_spread,resolution_length,num_atoms,trans_temp)
+
+    with open('generated_data.pickle', 'wb') as f:
+        pickle.dump(generate, f)
+
 
 if __name__ == "__main__":
 

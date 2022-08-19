@@ -4,6 +4,7 @@ import math
 import time
 from testing_old_classical_BEC_NNs import Evaluate
 from generate_bec_thermal_cloud_nn_data import GenerateBecThermalCloudData
+import pickle
 
 def calculate_runtime(func):
     '''
@@ -71,11 +72,16 @@ class Train:
 
 def main():
 
-    num_atoms = 100000
+    # num_atoms = 100000
+    #
+    # trans_temp = (num_atoms/(2*1*1.645))**0.5
 
-    trans_temp = (num_atoms/(2*1*1.645))**0.5
+    data = 0
 
-    data = GenerateBecThermalCloudData(10,5,0,100,100000,trans_temp)
+    with open('generated_data.pickle','rb') as f:
+        data = pickle.load(f)
+
+    # data = GenerateBecThermalCloudData(10,5,0,100,100000,trans_temp)
 
     compiled_model = Model(data.x_train,data.y_train,data.x_test,data.y_test)
 
