@@ -14,7 +14,7 @@ def main():
     generate = GenerateBecThermalCloudData(training_size,test_size,noise_spread,resolution_length,num_atoms,trans_temp)
 
 
-    out = bz2.BZ2File("generated_data.pickle",'wb')
+    out = bz2.BZ2File("generated_data.bz2",'wb')
     pickle.dump(generate,out)
     out.close()
 
