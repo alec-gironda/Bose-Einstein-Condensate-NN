@@ -29,14 +29,14 @@ class Model:
 
         self.compiled_model = self.compile_model()
 
-        self.x_train = x_train
-        self.y_train = y_train
+        self.x_train = np.asarray(x_train)
+        self.y_train = np.asarray(y_train)
 
-        self.validation_x = x_test[len(x_test)//2:]
-        self.x_test = x_test[:len(x_test)//2]
+        self.validation_x = np.asarray(x_test[len(x_test)//2:])
+        self.x_test = np.asarray(x_test[:len(x_test)//2])
 
-        self.validation_y = y_test[len(y_test)//2:]
-        self.y_test = y_test[:len(y_test)//2]
+        self.validation_y = np.asarray(y_test[len(y_test)//2:])
+        self.y_test = np.asarray(y_test[:len(y_test)//2])
 
     def compile_model(self):
 
