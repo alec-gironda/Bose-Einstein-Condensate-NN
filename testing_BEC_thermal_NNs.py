@@ -78,13 +78,24 @@ def main():
     #
     # trans_temp = (num_atoms/(2*1*1.645))**0.5
 
-    in_file = bz2.BZ2File("generated_data.bz2",'rb')
+    in_file = bz2.BZ2File("full_generated_data.bz2",'rb')
     data = pickle.load(in_file)
     in_file.close()
 
     # data = GenerateBecThermalCloudData(10,5,0,100,100000,trans_temp)
 
-    compiled_model = Model(data.x_train,data.y_train,data.x_test,data.y_test)
+    #use this line if not generating in parallel
+    #compiled_model = Model(data.x_train,data.y_train,data.x_test,data.y_test)
+
+    #use if generating data in parallel
+    x_train = data[0]
+    y_train = data[1]
+    x_test = data[2]
+    y_test = data[3]
+
+    print(len(x_train))
+
+    compiled_model = Model(x_train,y_train,x_test,y_test)
 
     trained_model = Train(compiled_model)
 
