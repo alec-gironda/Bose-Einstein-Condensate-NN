@@ -10,7 +10,7 @@ from generate_classical_tmp_nn_data import GenerateClassicalData
 
 '''
 
-throw error if batch size is less than data set size
+raise error if batch size is less than data set size
 
 '''
 
