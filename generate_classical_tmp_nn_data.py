@@ -4,6 +4,22 @@ import random
 import time
 
 class GenerateData:
+    '''
+    Base class for generating images.
+
+    Required arguments for instance:
+
+        training_size (int), test_size (int), noise_spread (float), resolution_length (int)
+
+    training_size: size of generated training set
+
+    test_size: size of generated test set
+
+    noise_spread: increasing will add more random noise to images
+
+    resolution_length: pixel side length of image
+
+    '''
 
     def calculate_runtime(func):
         '''
@@ -27,6 +43,9 @@ class GenerateData:
         self.resolution_length = resolution_length
 
     def generate_noise_image(self,temp,length,noise_spread):
+        '''
+        generates noise image with just a thermal cloud
+        '''
         n_arr = np.zeros((length,length))
         n_arr = n_arr.tolist()
         for x in range(length):
@@ -35,6 +54,12 @@ class GenerateData:
         return n_arr
 
     def generate_data(self,size,length,noise_spread):
+        '''
+        generates a list of noisy thermal cloud images and its corresponding list of labels.
+
+        importantly, this method generates a dataset with 4 discrete labels at 4 discrete temperatures. Not necessarily
+        useful to the regression problem we are really focused on.
+        '''
 
         x_data = []
         y_data = []
@@ -61,6 +86,11 @@ class GenerateData:
         return x_data,y_data
 
     def shuffle_data(self,x_data,y_data):
+        '''
+        takes in lists x_data and y_data and shuffles them in the same way
+        so that x_data[i] still corresponds to y_data[i]
+
+        '''
         shuffle_list = list(zip(x_data,y_data))
         random.shuffle(shuffle_list)
         x_data, y_data = zip(*shuffle_list)
@@ -68,6 +98,12 @@ class GenerateData:
         return x_data,y_data
 
 class GenerateClassicalData(GenerateData):
+    '''
+    an instance of this class will have training and test sets to train a model on
+    discrete temperatures in a classical thermodynamic system.
+
+    required arguments are the same as the parent class, GenerateData.
+    '''
 
     def calculate_runtime(func):
         '''

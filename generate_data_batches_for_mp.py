@@ -31,8 +31,8 @@ class GenerateBatch:
 
         #set parameters
 
-        training_size = 1000
-        test_size = 500
+        training_size = 100
+        test_size = 50
         noise_spread = 0
         resolution_length = 100
         num_atoms = 100000
@@ -50,7 +50,7 @@ class GenerateBatch:
 
         #write generated images to bz2 file
 
-        o_file = "generated_data" + str(seed_value) + ".bz2"
+        o_file = ".\generated_data\generated_data" + str(seed_value) + ".bz2"
         out = bz2.BZ2File(o_file,'wb')
         pickle.dump(generate,out)
         out.close()

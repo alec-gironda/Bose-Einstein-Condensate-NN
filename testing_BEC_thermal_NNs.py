@@ -78,7 +78,7 @@ def main():
     #
     # trans_temp = (num_atoms/(2*1*1.645))**0.5
 
-    in_file = bz2.BZ2File("full_generated_data.bz2",'rb')
+    in_file = bz2.BZ2File("./generated_data/full_generated_data.bz2",'rb')
     data = pickle.load(in_file)
     in_file.close()
 
