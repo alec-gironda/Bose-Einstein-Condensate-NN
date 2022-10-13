@@ -9,7 +9,7 @@
 #SBATCH --cpus-per-task=1                       # Run each array job on a single core
 #SBATCH --mem=2gb                               # Job memory request
 #SBATCH --partition=standard                    # Partition (queue) 
-#SBATCH --time=00:15:00                         # Time limit hrs:min:sec
+#SBATCH --time=01:00:00                         # Time limit hrs:min:sec
 #SBATCH --array=0-7                             # Array range: stets number of array jobs
 
 # print SLURM envirionment variables

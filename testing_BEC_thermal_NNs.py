@@ -7,6 +7,7 @@ from generate_bec_thermal_cloud_nn_data import GenerateBecThermalCloudData
 import pickle
 import bz2
 import os
+import pathlib
 
 def calculate_runtime(func):
     '''
@@ -77,8 +78,8 @@ def main():
     # num_atoms = 100000
     #
     # trans_temp = (num_atoms/(2*1*1.645))**0.5
-
-    in_file = bz2.BZ2File("./generated_data/full_generated_data.bz2",'rb')
+    cwd = pathlib.Path(__file__).parent.resolve()
+    in_file = bz2.BZ2File(str(cwd)+"/generated_data/full_generated_data.bz2",'rb')
     data = pickle.load(in_file)
     in_file.close()
 
