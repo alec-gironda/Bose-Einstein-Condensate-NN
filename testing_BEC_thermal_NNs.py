@@ -8,6 +8,7 @@ import pickle
 import bz2
 import os
 import pathlib
+import matplotlib.pyplot as plt
 
 def calculate_runtime(func):
     '''
@@ -26,9 +27,9 @@ def calculate_runtime(func):
 
 class Model:
 
-    def __init__(self,x_train,y_train,x_test,y_test):
+    def __init__(self,x_train,y_train,x_test,y_test,hidden_units):
 
-        self.compiled_model = self.compile_model()
+        self.compiled_model = self.compile_model(hidden_units)
 
         self.x_train = np.asarray(x_train)
         self.y_train = np.asarray(y_train)
@@ -39,18 +40,18 @@ class Model:
         self.validation_y = np.asarray(y_test[len(y_test)//2:])
         self.y_test = np.asarray(y_test[:len(y_test)//2])
 
-    def compile_model(self):
+    def compile_model(self,hidden_units):
 
         #on 1000 training images, 250 validation images, and 250 test images, model achieved 0.033 root mean sqr error on test images
 
         model = tf.keras.models.Sequential()
         model.add(tf.keras.layers.Flatten())
-        model.add(tf.keras.layers.Dense(5000,activation = tf.nn.relu))
+        model.add(tf.keras.layers.Dense(hidden_units,activation = tf.nn.relu))
         model.add(tf.keras.layers.Dense(2,activation= tf.nn.relu))
 
         #0.000001 lr works well for temp only
 
-        optim = tf.keras.optimizers.Adam(learning_rate = 0.00001)
+        optim = tf.keras.optimizers.Adam(learning_rate = 0.001)
 
         model.compile(optimizer=optim,loss='mean_squared_error',metrics=[tf.keras.metrics.RootMeanSquaredError(),tf.keras.metrics.MeanAbsoluteError()])
 
@@ -68,9 +69,31 @@ class Train:
 
         earlystopping = tf.keras.callbacks.EarlyStopping(monitor ="val_loss", mode ="min", patience = 20,restore_best_weights = True)
 
-        compiled_model.fit(model.x_train,model.y_train,epochs=1000,validation_data = (model.validation_x,model.validation_y),callbacks = [earlystopping])
+        compiled_model.fit(model.x_train,model.y_train,epochs=100,validation_data = (model.validation_x,model.validation_y),callbacks = [earlystopping])
 
         return compiled_model
+
+class Plot:
+
+    '''
+    generates a scatterplot of two arrays
+    '''
+
+    def __init__(self,x_list,y_list,x_label,y_label):
+        self.x_list = x_list
+        self.y_list = y_list
+
+        self.x_label = x_label
+        self.y_label = y_label
+
+    def scatter_plot(self):
+        plt.scatter(self.x_list,self.y_list)
+        plt.xlabel(self.x_label)
+        plt.ylabel(self.y_label)
+
+        cwd = pathlib.Path(__file__).parent.resolve()
+        plt.savefig(str(cwd)+"/plots/plot.png")
+        # plt.show()
 
 
 def main():
@@ -96,16 +119,24 @@ def main():
 
     print(len(x_train))
 
-    compiled_model = Model(x_train,y_train,x_test,y_test)
+    mse_lis =  []
+    hidden_units_lis = range(20,41)
+    for hidden_units in hidden_units_lis:
 
-    trained_model = Train(compiled_model)
+        compiled_model = Model(x_train,y_train,x_test,y_test,hidden_units)
 
-    trained_model = trained_model.trained_model
+        trained_model = Train(compiled_model)
 
+        trained_model = trained_model.trained_model
 
-    evaluate = Evaluate(compiled_model,trained_model)
+        evaluate = Evaluate(compiled_model,trained_model)
 
-    print(evaluate)
+        print(evaluate)
+        mse = evaluate.val_acc
+        mse_lis.append(mse)
+
+    plot = Plot(hidden_units_lis,mse_lis,"hidden units","mse")
+    plot.scatter_plot()
 
 
 if __name__ == "__main__":

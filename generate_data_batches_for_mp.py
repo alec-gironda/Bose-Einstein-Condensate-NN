@@ -32,7 +32,7 @@ class GenerateBatch:
 
         #set parameters
 
-        training_size = 10
+        training_size = 100
         test_size = 5
         noise_spread = 0
         resolution_length = 100
