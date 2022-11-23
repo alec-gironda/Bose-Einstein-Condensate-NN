@@ -27,9 +27,9 @@ def calculate_runtime(func):
 
 class Model:
 
-    def __init__(self,x_train,y_train,x_test,y_test,hidden_units):
+    def __init__(self,x_train,y_train,x_test,y_test):
 
-        self.compiled_model = self.compile_model(hidden_units)
+        self.compiled_model = self.compile_model()
 
         self.x_train = np.asarray(x_train)
         self.y_train = np.asarray(y_train)
@@ -40,14 +40,14 @@ class Model:
         self.validation_y = np.asarray(y_test[len(y_test)//2:])
         self.y_test = np.asarray(y_test[:len(y_test)//2])
 
-    def compile_model(self,hidden_units):
+    def compile_model(self):
 
         #on 1000 training images, 250 validation images, and 250 test images, model achieved 0.033 root mean sqr error on test images
 
         model = tf.keras.models.Sequential()
         model.add(tf.keras.layers.Flatten())
-        model.add(tf.keras.layers.Dense(hidden_units,activation = tf.nn.relu))
-        model.add(tf.keras.layers.Dense(2,activation= tf.nn.relu))
+        model.add(tf.keras.layers.Dense(100,activation = tf.nn.relu))
+        model.add(tf.keras.layers.Dense(2))
 
         #0.000001 lr works well for temp only
 
@@ -123,7 +123,7 @@ class Train:
 
         earlystopping = tf.keras.callbacks.EarlyStopping(monitor ="val_loss", mode ="min", patience = 20,restore_best_weights = True)
 
-        compiled_model.fit(model.x_train,model.y_train,epochs=100,validation_data = (model.validation_x,model.validation_y),callbacks = [earlystopping])
+        compiled_model.fit(model.x_train,model.y_train,epochs=1000,validation_data = (model.validation_x,model.validation_y),callbacks = [earlystopping])
 
         return compiled_model
 
@@ -174,24 +174,32 @@ def main():
 
     print(len(x_train))
 
-    mse_lis =  []
-    hidden_units_lis = range(20,41)
-    for hidden_units in hidden_units_lis:
+    compiled_model = Model(x_train,y_train,x_test,y_test)
 
-        compiled_model = ConvolutionalModel(x_train,y_train,x_test,y_test)
+    trained_model = Train(compiled_model)
 
-        trained_model = Train(compiled_model)
+    trained_model = trained_model.trained_model
 
-        trained_model = trained_model.trained_model
+    evaluate = Evaluate(compiled_model,trained_model)
 
-        evaluate = Evaluate(compiled_model,trained_model)
+    # mse_lis =  []
+    # hidden_units_lis = range(20,41)
+    # for hidden_units in hidden_units_lis:
+    #
+    #     compiled_model = Model(x_train,y_train,x_test,y_test)
+    #
+    #     trained_model = Train(compiled_model)
+    #
+    #     trained_model = trained_model.trained_model
+    #
+    #     evaluate = Evaluate(compiled_model,trained_model)
+    #
+    #     print(evaluate)
+    #     mse = evaluate.val_acc
+    #     mse_lis.append(mse)
 
-        print(evaluate)
-        mse = evaluate.val_acc
-        mse_lis.append(mse)
-
-    plot = Plot(hidden_units_lis,mse_lis,"hidden units","mse")
-    plot.scatter_plot()
+    # plot = Plot(hidden_units_lis,mse_lis,"hidden units","mse")
+    # plot.scatter_plot()
 
 
 if __name__ == "__main__":
