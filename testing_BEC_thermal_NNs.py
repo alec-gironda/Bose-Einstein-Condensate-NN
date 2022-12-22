@@ -29,8 +29,6 @@ class Model:
 
     def __init__(self,x_train,y_train,x_test,y_test):
 
-        self.compiled_model = self.compile_model()
-
         self.x_train = np.asarray(x_train)
         self.y_train = np.asarray(y_train)
 
@@ -39,6 +37,7 @@ class Model:
 
         self.validation_y = np.asarray(y_test[len(y_test)//2:])
         self.y_test = np.asarray(y_test[:len(y_test)//2])
+        self.compiled_model = self.compile_model()
 
     def compile_model(self):
 
@@ -46,7 +45,7 @@ class Model:
 
         model = tf.keras.models.Sequential()
         model.add(tf.keras.layers.Flatten())
-        model.add(tf.keras.layers.Dense(100,activation = tf.nn.relu))
+        model.add(tf.keras.layers.Dense(len(self.x_train[0])//2,activation = tf.nn.relu))
         model.add(tf.keras.layers.Dense(2))
 
         #0.000001 lr works well for temp only
@@ -184,8 +183,6 @@ def main():
 
     print(len(x_train))
 
-    '''
-
     compiled_model = Model(x_train,y_train,x_test,y_test)
 
     trained_model = Train(compiled_model)
@@ -196,8 +193,6 @@ def main():
 
     trained_model.save("BEC_model")
 
-
-    '''
     trained_model = tf.keras.models.load_model('BEC_model')
 
     # mse_lis =  []
