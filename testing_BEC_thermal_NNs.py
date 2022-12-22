@@ -46,6 +46,9 @@ class Model:
         model = tf.keras.models.Sequential()
         model.add(tf.keras.layers.Flatten())
         model.add(tf.keras.layers.Dense(len(self.x_train[0])//2,activation = tf.nn.relu))
+        model.add(tf.keras.layers.Dense(len(self.x_train[0])//4,activation = tf.nn.relu))
+        model.add(tf.keras.layers.Dense(len(self.x_train[0])//8,activation = tf.nn.relu))
+        model.add(tf.keras.layers.Dense(len(self.x_train[0])//16,activation = tf.nn.relu))
         model.add(tf.keras.layers.Dense(2))
 
         #0.000001 lr works well for temp only
@@ -122,7 +125,7 @@ class Train:
 
         earlystopping = tf.keras.callbacks.EarlyStopping(monitor ="val_loss", mode ="min", patience = 20,restore_best_weights = True)
 
-        compiled_model.fit(model.x_train,model.y_train,epochs=1000,validation_data = (model.validation_x,model.validation_y),callbacks = [earlystopping])
+        compiled_model.fit(model.x_train,model.y_train,epochs=50,validation_data = (model.validation_x,model.validation_y),callbacks = [earlystopping])
 
         return compiled_model
 
@@ -132,7 +135,7 @@ class Plot:
     generates a scatterplot of two arrays
     '''
 
-    def __init__(self,x_list,y_list,x_label,y_label,x_list2 = None ,y_list2 = None):
+    def __init__(self,x_list,y_list,x_label,y_label,x_list2 = None ,y_list2 = None,num_plot = 0):
         self.x_list = x_list
         self.y_list = y_list
 
@@ -141,6 +144,8 @@ class Plot:
 
         self.x_list2 = x_list2
         self.y_list2 = y_list2
+
+        self.num_plot = num_plot
 
     def scatter_plot(self):
         plt.scatter(self.x_list,self.y_list)
@@ -151,7 +156,7 @@ class Plot:
             plt.scatter(self.x_list2,self.y_list2)
 
         cwd = pathlib.Path(__file__).parent.resolve()
-        plt.savefig(str(cwd)+"/plots/plot.png")
+        plt.savefig(str(cwd)+f"/plots/plot{self.num_plot}.png")
         # plt.show()
 
 
@@ -181,7 +186,8 @@ def main():
     x_test = data[2]
     y_test = data[3]
 
-    print(len(x_train))
+
+    print(np.shape(x_train))
 
     compiled_model = Model(x_train,y_train,x_test,y_test)
 
@@ -193,23 +199,8 @@ def main():
 
     trained_model.save("BEC_model")
 
-    trained_model = tf.keras.models.load_model('BEC_model')
 
-    # mse_lis =  []
-    # hidden_units_lis = range(20,41)
-    # for hidden_units in hidden_units_lis:
-    #
-    #     compiled_model = Model(x_train,y_train,x_test,y_test)
-    #
-    #     trained_model = Train(compiled_model)
-    #
-    #     trained_model = trained_model.trained_model
-    #
-    #     evaluate = Evaluate(compiled_model,trained_model)
-    #
-    #     print(evaluate)
-    #     mse = evaluate.val_acc
-    #     mse_lis.append(mse)
+    trained_model = tf.keras.models.load_model('BEC_model')
 
     predictions = trained_model.predict(x_test)
     temp_predictions = []
@@ -228,8 +219,11 @@ def main():
     # plot = Plot(range(len(temp_test)),temp_test,"obs","temp",range(len(temp_predictions)),temp_predictions)
     # plot.scatter_plot()
 
-    plot = Plot(range(len(BEC_atoms_test)),BEC_atoms_test,"obs","temp",range(len(BEC_atoms_predictions)),BEC_atoms_predictions)
-    plot.scatter_plot()
+    plot1 = Plot(range(len(temp_predictions)),temp_predictions,"obs","temp",range(len(temp_test)),temp_test,0)
+    plot2 = Plot(range(len(BEC_atoms_predictions)),BEC_atoms_predictions,"obs","num_atoms",range(len(BEC_atoms_test)),BEC_atoms_test,1)
+
+    plot1.scatter_plot()
+    plot2.scatter_plot()
 
 
 if __name__ == "__main__":

@@ -78,7 +78,7 @@ class GenerateBecThermalCloudData(GenerateData):
             temp = np.random.uniform(trans_temp//2,int(trans_temp*2))
             num_BEC_atoms = 0
             if temp < trans_temp:
-                num_BEC_atoms = int(num_atoms*(1-(temp/trans_temp)**dimensions))
+                num_BEC_atoms = num_atoms*(1-(temp/trans_temp)**dimensions)
             curr_img = self.generate_noise_image(temp,length,noise_spread,num_atoms,trans_temp,dimensions)
             x_data.append(curr_img)
             y_data.append((temp,num_BEC_atoms))
