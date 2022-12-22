@@ -133,17 +133,23 @@ class Plot:
     generates a scatterplot of two arrays
     '''
 
-    def __init__(self,x_list,y_list,x_label,y_label):
+    def __init__(self,x_list,y_list,x_label,y_label,x_list2 = None ,y_list2 = None):
         self.x_list = x_list
         self.y_list = y_list
 
         self.x_label = x_label
         self.y_label = y_label
 
+        self.x_list2 = x_list2
+        self.y_list2 = y_list2
+
     def scatter_plot(self):
         plt.scatter(self.x_list,self.y_list)
         plt.xlabel(self.x_label)
         plt.ylabel(self.y_label)
+
+        if self.x_list2 and self.y_list2:
+            plt.scatter(self.x_list2,self.y_list2)
 
         cwd = pathlib.Path(__file__).parent.resolve()
         plt.savefig(str(cwd)+"/plots/plot.png")
@@ -155,11 +161,14 @@ def main():
     # num_atoms = 100000
     #
     # trans_temp = (num_atoms/(2*1*1.645))**0.5
+
+
     cwd = pathlib.Path(__file__).parent.resolve()
     print(cwd)
     in_file = bz2.BZ2File(str(cwd)+"/generated_data/full_generated_data.bz2",'rb')
     data = pickle.load(in_file)
     in_file.close()
+
 
     # data = GenerateBecThermalCloudData(10,5,0,100,100000,trans_temp)
 
@@ -167,12 +176,15 @@ def main():
     #compiled_model = Model(data.x_train,data.y_train,data.x_test,data.y_test)
 
     #use if generating data in parallel
+
     x_train = data[0]
     y_train = data[1]
     x_test = data[2]
     y_test = data[3]
 
     print(len(x_train))
+
+    '''
 
     compiled_model = Model(x_train,y_train,x_test,y_test)
 
@@ -181,6 +193,12 @@ def main():
     trained_model = trained_model.trained_model
 
     evaluate = Evaluate(compiled_model,trained_model)
+
+    trained_model.save("BEC_model")
+
+
+    '''
+    trained_model = tf.keras.models.load_model('BEC_model')
 
     # mse_lis =  []
     # hidden_units_lis = range(20,41)
@@ -198,8 +216,25 @@ def main():
     #     mse = evaluate.val_acc
     #     mse_lis.append(mse)
 
-    # plot = Plot(hidden_units_lis,mse_lis,"hidden units","mse")
+    predictions = trained_model.predict(x_test)
+    temp_predictions = []
+    BEC_atoms_predictions = []
+
+    temp_test = []
+    BEC_atoms_test = []
+    for i in range(len(predictions)):
+
+        temp_predictions.append(predictions[i][0])
+        BEC_atoms_predictions.append(predictions[i][1])
+
+        temp_test.append(y_test[i][0])
+        BEC_atoms_test.append(y_test[i][1])
+
+    # plot = Plot(range(len(temp_test)),temp_test,"obs","temp",range(len(temp_predictions)),temp_predictions)
     # plot.scatter_plot()
+
+    plot = Plot(range(len(BEC_atoms_test)),BEC_atoms_test,"obs","temp",range(len(BEC_atoms_predictions)),BEC_atoms_predictions)
+    plot.scatter_plot()
 
 
 if __name__ == "__main__":
