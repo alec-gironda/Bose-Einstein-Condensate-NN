@@ -86,11 +86,11 @@ class ConvolutionalModel:
         model = tf.keras.Sequential()
 
         #check this line
-        model.add(tf.keras.layers.Conv2D(128, (3, 3), activation=tf.nn.relu, input_shape=(100, 100, 1)))
+        model.add(tf.keras.layers.Conv2D(32, (3, 3), activation=tf.nn.relu, input_shape=(100, 100, 1)))
         model.add(tf.keras.layers.MaxPooling2D((2, 2)))
-        model.add(tf.keras.layers.Conv2D(256, (3, 3), activation=tf.nn.relu))
+        model.add(tf.keras.layers.Conv2D(64, (3, 3), activation=tf.nn.relu))
         model.add(tf.keras.layers.MaxPooling2D((2, 2)))
-        model.add(tf.keras.layers.Conv2D(256, (3, 3), activation=tf.nn.relu))
+        model.add(tf.keras.layers.Conv2D(64, (3, 3), activation=tf.nn.relu))
 
         model.add(tf.keras.layers.Flatten())
         model.add(tf.keras.layers.Dense(len(self.x_train[0])//2,activation = tf.nn.relu))
@@ -118,7 +118,7 @@ class Train:
     @calculate_runtime
     def fit_model(self,compiled_model,model):
 
-        earlystopping = tf.keras.callbacks.EarlyStopping(monitor ="val_loss", mode ="min", patience = 20,restore_best_weights = True)
+        earlystopping = tf.keras.callbacks.EarlyStopping(monitor ="val_loss", mode ="min", patience = 50,restore_best_weights = True)
 
         compiled_model.fit(model.x_train,model.y_train,epochs=1000,validation_data = (model.validation_x,model.validation_y),callbacks = [earlystopping])
 
