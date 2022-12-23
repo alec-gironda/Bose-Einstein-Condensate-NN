@@ -204,6 +204,7 @@ def main():
 
     loss: 1.1483e-05 - root_mean_squared_error: 0.0034 - mean_absolute_error: 0.0020
 
+    loss: 1.0181e-05 - mean_squared_error: 1.0181e-05 - mean_absolute_error: 0.0017
 
     '''
 
@@ -226,7 +227,7 @@ def main():
 
     print(np.shape(x_test))
 
-
+    '''
 
     compiled_model = ConvolutionalModel(x_train,y_train,x_test,y_test)
 
@@ -238,6 +239,7 @@ def main():
 
     trained_model.save("BEC_model")
 
+    '''
 
 
     trained_model = tf.keras.models.load_model('BEC_model')
