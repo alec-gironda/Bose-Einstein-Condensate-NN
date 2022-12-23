@@ -9,6 +9,8 @@ import bz2
 import os
 import pathlib
 import matplotlib.pyplot as plt
+from sklearn.preprocessing import MinMaxScaler,StandardScaler
+import copy
 
 def calculate_runtime(func):
     '''
@@ -103,10 +105,9 @@ class ConvolutionalModel:
         model.add(tf.keras.layers.BatchNormalization(center=True,scale=False))
         model.add(tf.keras.layers.Activation('relu'))
 
-        model.add(tf.keras.layers.Dropout(0.3))
-        model.add(tf.keras.layers.Dense(2,activation='linear'))
+        model.add(tf.keras.layers.Dense(2))
 
-        optim = tf.keras.optimizers.Adam(learning_rate = 0.01)
+        optim = tf.keras.optimizers.Adam(learning_rate = 0.001)
 
         model.compile(optimizer=optim,loss='mean_squared_error',metrics=[tf.keras.metrics.RootMeanSquaredError(),tf.keras.metrics.MeanAbsoluteError()])
 
@@ -125,7 +126,7 @@ class Train:
 
         earlystopping = tf.keras.callbacks.EarlyStopping(monitor ="val_loss", mode ="min", patience = 20,restore_best_weights = True)
 
-        compiled_model.fit(model.x_train,model.y_train,epochs=50,validation_data = (model.validation_x,model.validation_y),callbacks = [earlystopping])
+        compiled_model.fit(model.x_train,model.y_train,epochs=1000,validation_data = (model.validation_x,model.validation_y),callbacks = [earlystopping])
 
         return compiled_model
 
@@ -186,10 +187,22 @@ def main():
     x_test = data[2]
     y_test = data[3]
 
+    x_train,x_test = tf.keras.utils.normalize(x_train,axis=1),tf.keras.utils.normalize(x_test,axis=1)
+
+    # print(x_train[0][len(x_train[0])//2,:])
+
+    #make copy of y_test before preprocessed
+    tmp_y_test = copy.copy(y_test)
+
+    # preprocess
+    scaler = StandardScaler()
+    y_train = scaler.fit_transform(y_train)
+    y_test = scaler.fit_transform(y_test)
 
     print(np.shape(x_train))
 
-    compiled_model = Model(x_train,y_train,x_test,y_test)
+
+    compiled_model = ConvolutionalModel(x_train,y_train,x_test,y_test)
 
     trained_model = Train(compiled_model)
 
@@ -213,11 +226,17 @@ def main():
         temp_predictions.append(predictions[i][0])
         BEC_atoms_predictions.append(predictions[i][1])
 
-        temp_test.append(y_test[i][0])
-        BEC_atoms_test.append(y_test[i][1])
+        temp_test.append(tmp_y_test[i][0])
+        BEC_atoms_test.append(tmp_y_test[i][1])
 
     # plot = Plot(range(len(temp_test)),temp_test,"obs","temp",range(len(temp_predictions)),temp_predictions)
     # plot.scatter_plot()
+
+    predictions = np.asarray([(temp_predictions[i],BEC_atoms_predictions[i]) for i in range(len(temp_test))])
+    predictions = scaler.inverse_transform(predictions)
+
+    temp_predictions = predictions[:,0]
+    BEC_atoms_predictions = predictions[:,1]
 
     plot1 = Plot(range(len(temp_predictions)),temp_predictions,"obs","temp",range(len(temp_test)),temp_test,0)
     plot2 = Plot(range(len(BEC_atoms_predictions)),BEC_atoms_predictions,"obs","num_atoms",range(len(BEC_atoms_test)),BEC_atoms_test,1)
