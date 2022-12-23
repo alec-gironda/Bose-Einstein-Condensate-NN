@@ -95,9 +95,9 @@ class ConvolutionalModel:
 
         model.add(tf.keras.layers.Flatten())
         model.add(tf.keras.layers.Dense(len(self.x_train[0])//2,activation = tf.nn.relu))
-        # model.add(tf.keras.layers.Dense(len(self.x_train[0])//4,activation = tf.nn.relu))
-        # model.add(tf.keras.layers.Dense(len(self.x_train[0])//8,activation = tf.nn.relu))
-        # model.add(tf.keras.layers.Dense(len(self.x_train[0])//16,activation = tf.nn.relu))
+        model.add(tf.keras.layers.Dense(len(self.x_train[0])//4,activation = tf.nn.relu))
+        model.add(tf.keras.layers.Dense(len(self.x_train[0])//8,activation = tf.nn.relu))
+        model.add(tf.keras.layers.Dense(len(self.x_train[0])//16,activation = tf.nn.relu))
         model.add(tf.keras.layers.Dense(2))
 
         optim = tf.keras.optimizers.Adam(learning_rate = 0.001)
