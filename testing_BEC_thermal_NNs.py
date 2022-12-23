@@ -69,8 +69,6 @@ class ConvolutionalModel:
     #need to put the argparse stuff in this init and in the compilation
     def __init__(self,x_train,y_train,x_test,y_test):
 
-        self.compiled_model = self.compile_model()
-
         self.x_train = np.asarray(x_train)
         self.y_train = np.asarray(y_train)
 
@@ -81,30 +79,25 @@ class ConvolutionalModel:
         self.validation_y = np.asarray(y_test[len(y_test)//2:])
         self.y_test = np.asarray(y_test[:len(y_test)//2])
 
+        self.compiled_model = self.compile_model()
+
     #more arguments in here
     def compile_model(self):
 
         model = tf.keras.Sequential()
 
         #check this line
-        model.add(tf.keras.layers.Conv2D(input_shape =(100,100,1) ,kernel_size=3,filters=12,use_bias=False,padding='same'))
-        model.add(tf.keras.layers.BatchNormalization(center=True,scale=False))
-        model.add(tf.keras.layers.Activation('relu'))
-
-        model.add(tf.keras.layers.Conv2D(kernel_size=6,filters=24,use_bias=False,padding='same',strides=2))
-        model.add(tf.keras.layers.BatchNormalization(center=True,scale=False))
-        model.add(tf.keras.layers.Activation('relu'))
-
-        model.add(tf.keras.layers.Conv2D(kernel_size=6,filters=32,use_bias=False,padding='same',strides=2))
-        model.add(tf.keras.layers.BatchNormalization(center=True,scale=False))
-        model.add(tf.keras.layers.Activation('relu'))
+        model.add(tf.keras.layers.Conv2D(32, (3, 3), activation=tf.nn.relu, input_shape=(100, 100, 1)))
+        model.add(tf.keras.layers.MaxPooling2D((2, 2)))
+        model.add(tf.keras.layers.Conv2D(64, (3, 3), activation=tf.nn.relu))
+        model.add(tf.keras.layers.MaxPooling2D((2, 2)))
+        model.add(tf.keras.layers.Conv2D(64, (3, 3), activation=tf.nn.relu))
 
         model.add(tf.keras.layers.Flatten())
-
-        model.add(tf.keras.layers.Dense(200,use_bias=False))
-        model.add(tf.keras.layers.BatchNormalization(center=True,scale=False))
-        model.add(tf.keras.layers.Activation('relu'))
-
+        model.add(tf.keras.layers.Dense(len(self.x_train[0])//2,activation = tf.nn.relu))
+        # model.add(tf.keras.layers.Dense(len(self.x_train[0])//4,activation = tf.nn.relu))
+        # model.add(tf.keras.layers.Dense(len(self.x_train[0])//8,activation = tf.nn.relu))
+        # model.add(tf.keras.layers.Dense(len(self.x_train[0])//16,activation = tf.nn.relu))
         model.add(tf.keras.layers.Dense(2))
 
         optim = tf.keras.optimizers.Adam(learning_rate = 0.001)
