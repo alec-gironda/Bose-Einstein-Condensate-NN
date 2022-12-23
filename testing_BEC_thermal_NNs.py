@@ -9,7 +9,7 @@ import bz2
 import os
 import pathlib
 import matplotlib.pyplot as plt
-from sklearn.preprocessing import MinMaxScaler,StandardScaler
+from sklearn.preprocessing import MinMaxScaler,StandardScaler,MaxAbsScaler
 import copy
 
 def calculate_runtime(func):
@@ -187,7 +187,35 @@ def main():
     x_test = data[2]
     y_test = data[3]
 
-    x_train,x_test = tf.keras.utils.normalize(x_train,axis=1),tf.keras.utils.normalize(x_test,axis=1)
+    '''
+
+    x data scaled with tensorflow normalization
+
+    y scaled with standardscaler
+
+     l 0.0014 rmse 0.0373 mae 0.0218
+
+    x data with MinMaxScaler
+
+    y scaled with standardscaler
+
+    loss: 7.7384e-04 - root_mean_squared_error: 0.0278 - mean_absolute_error: 0.0189
+
+    x data scaled with MinMaxScaler
+
+    y scaled with MinMaxScaler
+
+    loss: 9.4292e-05 - root_mean_squared_error: 0.0097 - mean_absolute_error: 0.0063
+
+
+    '''
+
+    # x_scaler = MaxAbsScaler()
+    x_scaler = MinMaxScaler(feature_range = (0,1))
+
+    x_train = [x_scaler.fit_transform(x_train[i]) for i in range(len(x_train))]
+    x_test = [x_scaler.fit_transform(x_test[i]) for i in range(len(x_test))]
+    # x_train,x_test = tf.keras.utils.normalize(x_train,axis=1),tf.keras.utils.normalize(x_test,axis=1)
 
     # print(x_train[0][len(x_train[0])//2,:])
 
@@ -195,11 +223,11 @@ def main():
     tmp_y_test = copy.copy(y_test)
 
     # preprocess
-    scaler = StandardScaler()
-    y_train = scaler.fit_transform(y_train)
-    y_test = scaler.fit_transform(y_test)
+    y_scaler = MinMaxScaler(feature_range = (0,1))
+    y_train = y_scaler.fit_transform(y_train)
+    y_test = y_scaler.fit_transform(y_test)
 
-    print(np.shape(x_train))
+    print(np.shape(x_test))
 
 
     compiled_model = ConvolutionalModel(x_train,y_train,x_test,y_test)
@@ -215,7 +243,7 @@ def main():
 
     trained_model = tf.keras.models.load_model('BEC_model')
 
-    predictions = trained_model.predict(x_test)
+    predictions = trained_model.predict(np.asarray(x_test))
     temp_predictions = []
     BEC_atoms_predictions = []
 
@@ -233,7 +261,7 @@ def main():
     # plot.scatter_plot()
 
     predictions = np.asarray([(temp_predictions[i],BEC_atoms_predictions[i]) for i in range(len(temp_test))])
-    predictions = scaler.inverse_transform(predictions)
+    predictions = y_scaler.inverse_transform(predictions)
 
     temp_predictions = predictions[:,0]
     BEC_atoms_predictions = predictions[:,1]
