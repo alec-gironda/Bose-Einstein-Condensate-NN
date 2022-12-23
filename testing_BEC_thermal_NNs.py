@@ -11,6 +11,8 @@ import pathlib
 import matplotlib.pyplot as plt
 from sklearn.preprocessing import MinMaxScaler,StandardScaler,MaxAbsScaler
 import copy
+from sklearn.metrics import mean_squared_error,mean_absolute_error
+
 
 def calculate_runtime(func):
     '''
@@ -57,14 +59,11 @@ class Model:
 
         optim = tf.keras.optimizers.Adam(learning_rate = 0.001)
 
-        model.compile(optimizer=optim,loss='mean_squared_error',metrics=[tf.keras.metrics.RootMeanSquaredError(),tf.keras.metrics.MeanAbsoluteError()])
+        model.compile(optimizer=optim,loss='mean_squared_error',metrics=[tf.keras.metrics.MeanSquaredError(),tf.keras.metrics.MeanAbsoluteError()])
 
         return model
 
 class ConvolutionalModel:
-    '''
-
-    '''
 
     #need to put the argparse stuff in this init and in the compilation
     def __init__(self,x_train,y_train,x_test,y_test):
@@ -87,11 +86,11 @@ class ConvolutionalModel:
         model = tf.keras.Sequential()
 
         #check this line
-        model.add(tf.keras.layers.Conv2D(32, (3, 3), activation=tf.nn.relu, input_shape=(100, 100, 1)))
+        model.add(tf.keras.layers.Conv2D(128, (3, 3), activation=tf.nn.relu, input_shape=(100, 100, 1)))
         model.add(tf.keras.layers.MaxPooling2D((2, 2)))
-        model.add(tf.keras.layers.Conv2D(64, (3, 3), activation=tf.nn.relu))
+        model.add(tf.keras.layers.Conv2D(256, (3, 3), activation=tf.nn.relu))
         model.add(tf.keras.layers.MaxPooling2D((2, 2)))
-        model.add(tf.keras.layers.Conv2D(64, (3, 3), activation=tf.nn.relu))
+        model.add(tf.keras.layers.Conv2D(256, (3, 3), activation=tf.nn.relu))
 
         model.add(tf.keras.layers.Flatten())
         model.add(tf.keras.layers.Dense(len(self.x_train[0])//2,activation = tf.nn.relu))
@@ -100,9 +99,11 @@ class ConvolutionalModel:
         model.add(tf.keras.layers.Dense(len(self.x_train[0])//16,activation = tf.nn.relu))
         model.add(tf.keras.layers.Dense(2))
 
+        model.summary()
+
         optim = tf.keras.optimizers.Adam(learning_rate = 0.001)
 
-        model.compile(optimizer=optim,loss='mean_squared_error',metrics=[tf.keras.metrics.RootMeanSquaredError(),tf.keras.metrics.MeanAbsoluteError()])
+        model.compile(optimizer=optim,loss='mean_squared_error',metrics=[tf.keras.metrics.MeanSquaredError(),tf.keras.metrics.MeanAbsoluteError()])
 
         return model
 
@@ -160,7 +161,6 @@ def main():
     #
     # trans_temp = (num_atoms/(2*1*1.645))**0.5
 
-
     cwd = pathlib.Path(__file__).parent.resolve()
     print(cwd)
     in_file = bz2.BZ2File(str(cwd)+"/generated_data/full_generated_data.bz2",'rb')
@@ -200,6 +200,10 @@ def main():
 
     loss: 9.4292e-05 - root_mean_squared_error: 0.0097 - mean_absolute_error: 0.0063
 
+    cnn
+
+    loss: 1.1483e-05 - root_mean_squared_error: 0.0034 - mean_absolute_error: 0.0020
+
 
     '''
 
@@ -223,6 +227,7 @@ def main():
     print(np.shape(x_test))
 
 
+
     compiled_model = ConvolutionalModel(x_train,y_train,x_test,y_test)
 
     trained_model = Train(compiled_model)
@@ -234,9 +239,12 @@ def main():
     trained_model.save("BEC_model")
 
 
+
     trained_model = tf.keras.models.load_model('BEC_model')
 
-    predictions = trained_model.predict(np.asarray(x_test))
+    x_test = np.asarray(x_test)
+
+    predictions = trained_model.predict(x_test)
     temp_predictions = []
     BEC_atoms_predictions = []
 
@@ -264,6 +272,22 @@ def main():
 
     plot1.scatter_plot()
     plot2.scatter_plot()
+
+    temp_mse = mean_squared_error(temp_test,temp_predictions)
+    atoms_mse = mean_squared_error(BEC_atoms_test,BEC_atoms_predictions)
+
+    print(f"temp mse: {temp_mse}")
+    print(f"atoms mse: {atoms_mse}")
+
+    temp_mae = mean_absolute_error(temp_test,temp_predictions)
+    atoms_mae = mean_absolute_error(BEC_atoms_test,BEC_atoms_predictions)
+
+    print(f"temp mae: {temp_mae}")
+    print(f"atoms mae: {atoms_mae}")
+
+    for indx,pred in enumerate(BEC_atoms_predictions):
+        if abs(int(pred-BEC_atoms_test[indx])) > 300:
+            print(int(pred-BEC_atoms_test[indx]),indx,int(pred),int(BEC_atoms_test[indx]),int(temp_test[indx]))
 
 
 if __name__ == "__main__":
