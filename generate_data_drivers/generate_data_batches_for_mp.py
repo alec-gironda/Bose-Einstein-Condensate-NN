@@ -23,7 +23,7 @@ class GenerateBatch:
 
     '''
 
-    def generate_batch(seed_value):
+    def generate_batch(seed_value,train_size):
         '''
 
         generates a batch of images
@@ -32,8 +32,7 @@ class GenerateBatch:
 
         #set parameters
 
-        training_size = 10
-        test_size = 5
+        test_size = train_size//2
         noise_spread = 0
         resolution_length = 100
         num_atoms = 100000
@@ -48,7 +47,7 @@ class GenerateBatch:
         #generate images based on parameters
 
 
-        generate = GenerateBecThermalCloudData(training_size,test_size,noise_spread,resolution_length,num_atoms,trans_temp,dimensions,seed)
+        generate = GenerateBecThermalCloudData(train_size,test_size,noise_spread,resolution_length,num_atoms,trans_temp,dimensions,seed)
 
 
         #write generated images to bz2 file

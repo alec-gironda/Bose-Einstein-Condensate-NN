@@ -5,7 +5,6 @@ import tensorflow as tf
 import numpy as np
 import math
 import time
-from testing_old_classical_BEC_NNs import Evaluate
 import pickle
 import bz2
 import pathlib
@@ -125,6 +124,27 @@ class Train:
         compiled_model.fit(model.x_train,model.y_train,epochs=1000,validation_data = (model.validation_x,model.validation_y),callbacks = [earlystopping])
 
         return compiled_model
+
+class Evaluate:
+
+    '''
+    gets loss and accuracy of the model based on the validation(test) set
+
+    '''
+
+    def __init__(self,compiled_model,trained_model):
+        self.compiled_model = compiled_model
+        self.trained_model = trained_model
+
+        statistics = self.get_statistics(self.compiled_model,
+                                            self.trained_model)
+        self.val_loss = statistics[0]
+        self.val_acc = statistics[1]
+
+    def get_statistics(self,compiled_model,trained_model):
+        val_loss, val_rmse, val_mae = trained_model.evaluate(compiled_model.x_test,
+                                                   compiled_model.y_test)
+        return [val_loss, val_rmse, val_mae]
 
 class Plot:
 

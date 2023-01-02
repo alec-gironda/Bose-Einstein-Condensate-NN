@@ -62,6 +62,8 @@ class GenerateBecThermalCloudData:
 
         self.data_tup = ((self.x_train,self.y_train),(self.x_test,self.y_test))
 
+        print(f"batch {self.seed} generated. Time for batch {seed} to be generated:")
+
     def shuffle_data(self,x_data,y_data):
         '''
         takes in lists x_data and y_data and shuffles them in the same way

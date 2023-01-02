@@ -6,7 +6,7 @@ import math
 import time
 #from NN_database import Database
 import pandas as pd
-from generate_classical_tmp_nn_data import GenerateClassicalData
+from .generate_classical_tmp_nn_data import GenerateClassicalData
 
 '''
 

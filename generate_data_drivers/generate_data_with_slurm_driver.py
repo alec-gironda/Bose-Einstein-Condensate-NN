@@ -26,7 +26,7 @@ def main():
 
     seed = input()
 
-    GenerateBatch.generate_batch(int(seed))
+    GenerateBatch.generate_batch(int(seed),train_size)
 
 if __name__ == "__main__":
 
