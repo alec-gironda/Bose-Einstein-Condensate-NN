@@ -1,11 +1,11 @@
-from generate_classical_tmp_nn_data import GenerateData
+# from generate_classical_tmp_nn_data import GenerateData
 from generate_image_with_sampling import GenerateSampledImage
 import numpy as np
 import math
 import random
 import time
 
-class GenerateBecThermalCloudData(GenerateData):
+class GenerateBecThermalCloudData:
     '''
         attributes:
 
@@ -45,7 +45,8 @@ class GenerateBecThermalCloudData(GenerateData):
 
     @calculate_runtime
     def __init__(self,training_size,test_size,noise_spread,resolution_length,num_atoms,trans_temp,dimensions,seed):
-        super().__init__(training_size,test_size,noise_spread,resolution_length)
+        # super().__init__(training_size,test_size,noise_spread,resolution_length)
+
         self.num_atoms = num_atoms
         self.trans_temp = trans_temp
         self.dimensions = dimensions
@@ -60,6 +61,18 @@ class GenerateBecThermalCloudData(GenerateData):
         self.y_test = self.test_data[1]
 
         self.data_tup = ((self.x_train,self.y_train),(self.x_test,self.y_test))
+
+    def shuffle_data(self,x_data,y_data):
+        '''
+        takes in lists x_data and y_data and shuffles them in the same way
+        so that x_data[i] still corresponds to y_data[i]
+
+        '''
+        shuffle_list = list(zip(x_data,y_data))
+        random.shuffle(shuffle_list)
+        x_data, y_data = zip(*shuffle_list)
+        x_data, y_data = list(x_data), list(y_data)
+        return x_data,y_data
 
 
     def generate_noise_image(self,temp,length,noise_spread,num_atoms,trans_temp,dimensions):

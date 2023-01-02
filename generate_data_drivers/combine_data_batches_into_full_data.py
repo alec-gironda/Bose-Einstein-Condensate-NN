@@ -3,6 +3,10 @@ import bz2
 import pathlib
 
 def main():
+
+    print("combining data batches...")
+
+
     full_x_train = []
     full_y_train = []
     full_x_test = []
@@ -12,7 +16,7 @@ def main():
 
     for i in range(8):
 
-        file_name = str(cwd) + "/generated_data/generated_data" + str(i) + ".bz2"
+        file_name = str(cwd) + "/../generated_data/generated_data" + str(i) + ".bz2"
         in_file = bz2.BZ2File(file_name,'rb')
         data = pickle.load(in_file)
         in_file.close()
@@ -24,10 +28,13 @@ def main():
 
     data_tup = (full_x_train,full_y_train,full_x_test,full_y_test)
 
-    o_file = str(cwd) + "/generated_data/full_generated_data.bz2"
+    o_file = str(cwd) + "/../generated_data/full_generated_data.bz2"
     out = bz2.BZ2File(o_file,'wb')
     pickle.dump(data_tup,out)
     out.close()
+
+    print("full data generated.")
+
 
 if __name__ == "__main__":
     main()

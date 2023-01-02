@@ -1,17 +1,19 @@
+import os
+#only print error messages from tensorflow
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 import tensorflow as tf
 import numpy as np
 import math
 import time
 from testing_old_classical_BEC_NNs import Evaluate
-from generate_bec_thermal_cloud_nn_data import GenerateBecThermalCloudData
 import pickle
 import bz2
-import os
 import pathlib
 import matplotlib.pyplot as plt
 from sklearn.preprocessing import MinMaxScaler,StandardScaler,MaxAbsScaler
 import copy
 from sklearn.metrics import mean_squared_error,mean_absolute_error
+import argparse
 
 
 def calculate_runtime(func):
@@ -157,23 +159,33 @@ class Plot:
 
 def main():
 
-    # num_atoms = 100000
-    #
-    # trans_temp = (num_atoms/(2*1*1.645))**0.5
+    parser = argparse.ArgumentParser(description="arguments for neural network model")
 
+    parser.add_argument(
+    "-c",
+    "--convolutional",
+    action=argparse.BooleanOptionalAction,
+    help = "train on convolutional model or load convolutional model"
+    )
+
+    parser.add_argument(
+    "-l",
+    "--load",
+    action=argparse.BooleanOptionalAction,
+    help = "load model instead of training"
+    )
+
+    args = parser.parse_args()
+
+    #load fully generated data
+
+    print("loading data...")
     cwd = pathlib.Path(__file__).parent.resolve()
-    print(cwd)
     in_file = bz2.BZ2File(str(cwd)+"/generated_data/full_generated_data.bz2",'rb')
     data = pickle.load(in_file)
     in_file.close()
 
-
-    # data = GenerateBecThermalCloudData(10,5,0,100,100000,trans_temp)
-
-    #use this line if not generating in parallel
-    #compiled_model = Model(data.x_train,data.y_train,data.x_test,data.y_test)
-
-    #use if generating data in parallel
+    print("data loaded.")
 
     x_train = data[0]
     y_train = data[1]
@@ -181,6 +193,8 @@ def main():
     y_test = data[3]
 
     '''
+
+    all done on 8000 training images
 
     x data scaled with tensorflow normalization
 
@@ -208,41 +222,68 @@ def main():
 
     '''
 
-    # x_scaler = MaxAbsScaler()
+    #scale each row in images to be between 0 and 1
+
+    print("preprocessing data...")
+
     x_scaler = MinMaxScaler(feature_range = (0,1))
 
     x_train = [x_scaler.fit_transform(x_train[i]) for i in range(len(x_train))]
     x_test = [x_scaler.fit_transform(x_test[i]) for i in range(len(x_test))]
-    # x_train,x_test = tf.keras.utils.normalize(x_train,axis=1),tf.keras.utils.normalize(x_test,axis=1)
 
-    # print(x_train[0][len(x_train[0])//2,:])
-
-    #make copy of y_test before preprocessed
+    #make copy of y_test before preprocessing
     tmp_y_test = copy.copy(y_test)
 
-    # preprocess
+    #scale labels to be between 0 and 1
     y_scaler = MinMaxScaler(feature_range = (0,1))
     y_train = y_scaler.fit_transform(y_train)
     y_test = y_scaler.fit_transform(y_test)
 
-    print(np.shape(x_test))
+    print("data preprocessed.")
 
-    '''
+    if not args.load:
 
-    compiled_model = ConvolutionalModel(x_train,y_train,x_test,y_test)
+        print("training model...")
 
-    trained_model = Train(compiled_model)
+        compiled_model = None
 
-    trained_model = trained_model.trained_model
+        if args.convolutional:
 
-    evaluate = Evaluate(compiled_model,trained_model)
+            compiled_model = ConvolutionalModel(x_train,y_train,x_test,y_test)
 
-    trained_model.save("BEC_model")
+        else:
 
-    '''
+            compiled_model = Model(x_train,y_train,x_test,y_test)
 
+        trained_model = Train(compiled_model)
 
-    trained_model = tf.keras.models.load_model('BEC_model')
+        trained_model = trained_model.trained_model
+
+        evaluate = Evaluate(compiled_model,trained_model)
+
+        if args.convolutional:
+
+            trained_model.save("BEC_model_conv")
+
+        else:
+
+            trained_model.save("BEC_model")
+
+        print("model trained.")
+
+    trained_model = None
+
+    print("loading trained model...")
+
+    if args.convolutional:
+
+        trained_model = tf.keras.models.load_model('BEC_model_conv')
+
+    else:
+
+        trained_model = tf.keras.models.load_model('BEC_model')
+
+    print("model loaded.")
 
     x_test = np.asarray(x_test)
 
@@ -281,16 +322,17 @@ def main():
     print(f"temp mse: {temp_mse}")
     print(f"atoms mse: {atoms_mse}")
 
+    temp_rmse = mean_squared_error(temp_test,temp_predictions,squared = False)
+    atoms_rmse = mean_squared_error(BEC_atoms_test,BEC_atoms_predictions,squared = False)
+
+    print(f"temp rmse: {temp_rmse}")
+    print(f"atoms rmse: {atoms_rmse}")
+
     temp_mae = mean_absolute_error(temp_test,temp_predictions)
     atoms_mae = mean_absolute_error(BEC_atoms_test,BEC_atoms_predictions)
 
     print(f"temp mae: {temp_mae}")
     print(f"atoms mae: {atoms_mae}")
-
-    for indx,pred in enumerate(BEC_atoms_predictions):
-        if abs(int(pred-BEC_atoms_test[indx])) > 300:
-            print(int(pred-BEC_atoms_test[indx]),indx,int(pred),int(BEC_atoms_test[indx]),int(temp_test[indx]))
-
 
 if __name__ == "__main__":
 

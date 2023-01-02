@@ -24,10 +24,14 @@ def calculate_runtime(func):
 @calculate_runtime
 def main():
 
+    print("generating data batches...")
+
     with concurrent.futures.ProcessPoolExecutor() as executor:
         seeds = np.arange(8)
         executor.map(GenerateBatch.generate_batch,seeds)
 
+    print("data batches generated.")
+    
 if __name__ == "__main__":
 
     main()
