@@ -240,6 +240,8 @@ def main():
 
     loss: 1.0181e-05 - mean_squared_error: 1.0181e-05 - mean_absolute_error: 0.0017
 
+    loss: 7.9010e-06 - mean_squared_error: 7.9010e-06 - mean_absolute_error: 0.0018
+
     '''
 
     #scale each row in images to be between 0 and 1
@@ -321,14 +323,16 @@ def main():
         temp_test.append(tmp_y_test[i][0])
         BEC_atoms_test.append(tmp_y_test[i][1])
 
-    # plot = Plot(range(len(temp_test)),temp_test,"obs","temp",range(len(temp_predictions)),temp_predictions)
-    # plot.scatter_plot()
-
     predictions = np.asarray([(temp_predictions[i],BEC_atoms_predictions[i]) for i in range(len(temp_test))])
     predictions = y_scaler.inverse_transform(predictions)
 
     temp_predictions = predictions[:,0]
     BEC_atoms_predictions = predictions[:,1]
+
+    #make sure no predictions are less than 0
+
+    temp_predictions = [temp_predictions[i] if temp_predictions[i] > 0 else 0 for i in range(len(temp_predictions))]
+    BEC_atoms_predictions = [BEC_atoms_predictions[i] if BEC_atoms_predictions[i] > 0 else 0 for i in range(len(BEC_atoms_predictions))]
 
     plot1 = Plot(range(len(temp_predictions)),temp_predictions,"obs","temp",range(len(temp_test)),temp_test,0)
     plot2 = Plot(range(len(BEC_atoms_predictions)),BEC_atoms_predictions,"obs","num_atoms",range(len(BEC_atoms_test)),BEC_atoms_test,1)
