@@ -14,7 +14,6 @@ import copy
 from sklearn.metrics import mean_squared_error,mean_absolute_error
 import argparse
 
-
 def calculate_runtime(func):
     '''
     decorator to calculate the runtime of functions
@@ -34,26 +33,27 @@ class Model:
 
     def __init__(self,x_train,y_train,x_test,y_test):
 
-        self.x_train = np.asarray(x_train)
-        self.y_train = np.asarray(y_train)
+        self.x_train = tf.convert_to_tensor(x_train)
+        self.y_train = tf.convert_to_tensor(y_train)
 
-        self.validation_x = np.asarray(x_test[len(x_test)//2:])
-        self.x_test = np.asarray(x_test[:len(x_test)//2])
+        self.validation_x = tf.convert_to_tensor(x_test[len(x_test)//2:])
+        self.x_test = tf.convert_to_tensor(x_test[:len(x_test)//2])
 
-        self.validation_y = np.asarray(y_test[len(y_test)//2:])
-        self.y_test = np.asarray(y_test[:len(y_test)//2])
+        self.validation_y = tf.convert_to_tensor(y_test[len(y_test)//2:])
+        self.y_test = tf.convert_to_tensor(y_test[:len(y_test)//2])
         self.compiled_model = self.compile_model()
 
     def compile_model(self):
 
         #on 1000 training images, 250 validation images, and 250 test images, model achieved 0.033 root mean sqr error on test images
 
+
         model = tf.keras.models.Sequential()
         model.add(tf.keras.layers.Flatten())
-        model.add(tf.keras.layers.Dense(len(self.x_train[0])//2,activation = tf.nn.relu))
-        model.add(tf.keras.layers.Dense(len(self.x_train[0])//4,activation = tf.nn.relu))
-        model.add(tf.keras.layers.Dense(len(self.x_train[0])//8,activation = tf.nn.relu))
-        model.add(tf.keras.layers.Dense(len(self.x_train[0])//16,activation = tf.nn.relu))
+        model.add(tf.keras.layers.Dense((len(self.x_train[0])**2)//2,activation = tf.nn.relu))
+        model.add(tf.keras.layers.Dense((len(self.x_train[0])**2)//4,activation = tf.nn.relu))
+        model.add(tf.keras.layers.Dense((len(self.x_train[0])**2)//8,activation = tf.nn.relu))
+        model.add(tf.keras.layers.Dense((len(self.x_train[0])**2)//16,activation = tf.nn.relu))
         model.add(tf.keras.layers.Dense(2))
 
         #0.000001 lr works well for temp only
@@ -69,16 +69,14 @@ class ConvolutionalModel:
     #need to put the argparse stuff in this init and in the compilation
     def __init__(self,x_train,y_train,x_test,y_test):
 
-        self.x_train = np.asarray(x_train)
-        self.y_train = np.asarray(y_train)
+        self.x_train = tf.convert_to_tensor(x_train)
+        self.y_train = tf.convert_to_tensor(y_train)
 
-        #should only be getting validation data if that is the validation method of choice
-        self.validation_x = np.asarray(x_test[len(x_test)//2:])
-        self.x_test = np.asarray(x_test[:len(x_test)//2])
+        self.validation_x = tf.convert_to_tensor(x_test[len(x_test)//2:])
+        self.x_test = tf.convert_to_tensor(x_test[:len(x_test)//2])
 
-        self.validation_y = np.asarray(y_test[len(y_test)//2:])
-        self.y_test = np.asarray(y_test[:len(y_test)//2])
-
+        self.validation_y = tf.convert_to_tensor(y_test[len(y_test)//2:])
+        self.y_test = tf.convert_to_tensor(y_test[:len(y_test)//2])
         self.compiled_model = self.compile_model()
 
     #more arguments in here
@@ -93,11 +91,12 @@ class ConvolutionalModel:
         model.add(tf.keras.layers.MaxPooling2D((2, 2)))
         model.add(tf.keras.layers.Conv2D(64, (3, 3), activation=tf.nn.relu))
 
+        model = tf.keras.models.Sequential()
         model.add(tf.keras.layers.Flatten())
-        model.add(tf.keras.layers.Dense(len(self.x_train[0])//2,activation = tf.nn.relu))
-        model.add(tf.keras.layers.Dense(len(self.x_train[0])//4,activation = tf.nn.relu))
-        model.add(tf.keras.layers.Dense(len(self.x_train[0])//8,activation = tf.nn.relu))
-        model.add(tf.keras.layers.Dense(len(self.x_train[0])//16,activation = tf.nn.relu))
+        model.add(tf.keras.layers.Dense((len(self.x_train[0])**2)//2,activation = tf.nn.relu))
+        model.add(tf.keras.layers.Dense((len(self.x_train[0])**2)//4,activation = tf.nn.relu))
+        model.add(tf.keras.layers.Dense((len(self.x_train[0])**2)//8,activation = tf.nn.relu))
+        model.add(tf.keras.layers.Dense((len(self.x_train[0])**2)//16,activation = tf.nn.relu))
         model.add(tf.keras.layers.Dense(2))
 
         model.summary()
@@ -357,6 +356,10 @@ def main():
 
     print(f"temp mae: {temp_mae}")
     print(f"atoms mae: {atoms_mae}")
+
+    #check gaussian against this
+
+    
 
 if __name__ == "__main__":
 
