@@ -28,12 +28,12 @@ class GenerateSampledImage:
                 temp_ratio = 1
             BEC_probability = (1-(temp_ratio)**dimensions)
             if probability <= BEC_probability:
-                x_list.append(np.random.normal(0,0.707))
-                y_list.append(np.random.normal(0,0.707))
+                x_list.append((1/(math.sqrt(math.pi)))*np.random.normal(0,math.sqrt(1/2)))
+                y_list.append((1/(math.sqrt(math.pi)))*np.random.normal(0,math.sqrt(1/2)))
 
             else:
-                x_list.append(np.random.normal(0,math.sqrt(temp)))
-                y_list.append(np.random.normal(0,math.sqrt(temp)))
+                x_list.append((1/(math.sqrt(2 * math.pi)))*np.random.normal(0,math.sqrt(temp)))
+                y_list.append((1/(math.sqrt(2 * math.pi)))*np.random.normal(0,math.sqrt(temp)))
 
 
 

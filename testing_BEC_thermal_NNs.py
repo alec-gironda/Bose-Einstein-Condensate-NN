@@ -323,7 +323,12 @@ def main():
         BEC_atoms_test.append(tmp_y_test[i][1])
 
     predictions = np.asarray([(temp_predictions[i],BEC_atoms_predictions[i]) for i in range(len(temp_test))])
+
+    print(predictions[7])
+
     predictions = y_scaler.inverse_transform(predictions)
+
+    print(predictions[7])
 
     temp_predictions = predictions[:,0]
     BEC_atoms_predictions = predictions[:,1]
@@ -359,7 +364,7 @@ def main():
 
     #check gaussian against this
 
-    
+
 
 if __name__ == "__main__":
 
