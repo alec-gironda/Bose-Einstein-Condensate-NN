@@ -89,7 +89,7 @@ class GenerateBecThermalCloudData:
         x_data = []
         y_data = []
 
-        for i in range(size):
+        for _ in range(size):
             temp = np.random.uniform(trans_temp//2,int(trans_temp*2))
             num_BEC_atoms = 0
             if temp < trans_temp:

@@ -99,12 +99,10 @@ class ConvolutionalModel:
         model.add(tf.keras.layers.Dense((len(self.x_train[0])**2)//16,activation = tf.nn.relu))
         model.add(tf.keras.layers.Dense(2))
 
-        model.summary()
-
         optim = tf.keras.optimizers.Adam(learning_rate = 0.001)
 
         model.compile(optimizer=optim,loss='mean_squared_error',metrics=[tf.keras.metrics.MeanSquaredError(),tf.keras.metrics.MeanAbsoluteError()])
-
+        
         return model
 
 
