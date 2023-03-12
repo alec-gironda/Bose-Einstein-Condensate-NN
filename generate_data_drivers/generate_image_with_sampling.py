@@ -36,6 +36,6 @@ class GenerateSampledImage:
 
 
 
-        hist = np.histogram2d(x_list,y_list,length,range = [(-length//2 + 1,length //2),(length //2 + 1,length //2)])[0]
+        hist = np.histogram2d(x_list,y_list,length,range = [(-length//2 + 1,length //2),(-length //2 + 1,length //2)])[0]
         hist = hist.tolist()
         return hist
