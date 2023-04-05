@@ -192,13 +192,24 @@ def main():
     help = "load model instead of training"
     )
 
+    parser.add_argument(
+    "-n",
+    "--noise",
+    action=argparse.BooleanOptionalAction,
+    help = "use data with simple gaussian noise"
+    )
+
     args = parser.parse_args()
 
     #load fully generated data
 
     print("loading data...")
     cwd = pathlib.Path(__file__).parent.resolve()
-    in_file = bz2.BZ2File(str(cwd)+"/generated_data/full_generated_data.bz2",'rb')
+    in_file = None
+    if args.noise:
+        in_file = bz2.BZ2File(str(cwd)+"/generated_data/full_generated_data.bz2",'rb')
+    else:
+        in_file = bz2.BZ2File(str(cwd)+"/generated_data/full_generated_data_simple.bz2",'rb')
     data = pickle.load(in_file)
     in_file.close()
 
@@ -322,11 +333,9 @@ def main():
 
     predictions = np.asarray([(temp_predictions[i],BEC_atoms_predictions[i]) for i in range(len(temp_test))])
 
-    print(predictions[7])
 
     predictions = y_scaler.inverse_transform(predictions)
 
-    print(predictions[7])
 
     temp_predictions = predictions[:,0]
     BEC_atoms_predictions = predictions[:,1]

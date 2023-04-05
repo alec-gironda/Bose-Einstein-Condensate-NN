@@ -79,6 +79,7 @@ class GenerateBecThermalCloudData:
 
     def generate_noise_image(self,temp,length,noise_spread,num_atoms,trans_temp,dimensions):
 
+        
         sample = GenerateSampledImage(temp,length,num_atoms,dimensions)
         return sample.generated_image
 
