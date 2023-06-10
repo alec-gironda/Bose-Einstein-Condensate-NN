@@ -28,19 +28,41 @@ class FitMP:
 
         # out = (out - np.min(out)) / np.max(out)
         return out.ravel()
+    
+    def basic_eq(self,xy,A,B,dA,dB,xo,yo):   
+        x, y = xy
+                
+        out = A*np.exp((-(x-xo)**2)/(2*dA))*np.exp((-(y-yo)**2)/(2*dA)) + B*np.exp((-(x-xo)**2)/(2*dB))*np.exp((-(y-yo)**2)/(2*dB))
+
+        # out = (out - np.min(out)) / np.max(out)
+        return out.ravel()
 
 
+#     def get_performance_score(self,params,pair):
+
+#         x = np.linspace(-49, 50, 100)
+#         y = np.linspace(-49, 50, 100)
+#         x, y = np.meshgrid(x, y)
+            
+#         n,t = params
+        
+#         im,labs = pair
+
+#         performance = mean_absolute_error(self.analytical_eq((x,y),0,0,n,t),im.ravel())
+
+#         return performance
+    
     def get_performance_score(self,params,pair):
 
         x = np.linspace(-49, 50, 100)
         y = np.linspace(-49, 50, 100)
         x, y = np.meshgrid(x, y)
             
-        n,t = params
+        A,B,dA,dB = params
         
         im,labs = pair
 
-        performance = mean_absolute_error(self.analytical_eq((x,y),0,0,n,t),im.ravel())
+        performance = mean_absolute_error(self.basic_eq((x,y),A,B,dA,dB,0,0),im.ravel())
 
         return performance
         
@@ -50,9 +72,11 @@ class FitMP:
 
         for i,pair in enumerate(zip(x,y)):
             
-            kwargs = {"bounds": [(0,100000),(60,400)], "args": list(pair)}
+#             "bounds": [(0,100000),(60,400)],
+            
+            kwargs = { "args": list(pair)}
 
-            res = opt.basinhopping(self.get_performance_score,x0 = (50000,175), minimizer_kwargs = kwargs)
+            res = opt.basinhopping(self.get_performance_score,x0 = (50000/math.pi,(50000/(2*math.pi*175)),1,175), minimizer_kwargs = kwargs)
 
             new_preds.append(res["x"][::-1])
             
